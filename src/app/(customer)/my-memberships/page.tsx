@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMemberships, useMembershipStats } from "@/hooks/useMembership";
+import { useMemberships, useMembershipStats, Membership } from "@/hooks/useMembership";
 import Link from "next/link";
 
 export default function MyMemberships() {
@@ -28,7 +28,7 @@ export default function MyMemberships() {
   const error = membershipsError || statsError;
 
 
-  const getStatusBadge = (membership) => {
+  const getStatusBadge = (membership: Membership) => {
     const now = new Date();
     const isExpired = new Date(membership.expiryDate) < now;
     const isActive = membership.isActive && membership.paymentStatus === 'paid' && !isExpired;
