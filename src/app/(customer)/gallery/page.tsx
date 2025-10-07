@@ -30,8 +30,6 @@ interface GalleryImage {
     height: number;
   };
   aspectRatio: number;
-  views: number;
-  likes: number;
 }
 
 interface GalleryStats {
@@ -406,16 +404,6 @@ export default function Gallery() {
                         )}
                         <div className="flex items-center justify-between text-xs text-gray-500">
                           <span className="capitalize">{image.category}</span>
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-1">
-                              <Eye className="w-3 h-3" />
-                              {image.views}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Heart className="w-3 h-3" />
-                              {image.likes}
-                            </div>
-                          </div>
                         </div>
                       </div>
 
