@@ -32,17 +32,39 @@ import { useAuth } from "@/contexts/AuthContext";
 // import { useMembershipActions } from "@/hooks/useMembership";
 import MembershipPayment from "@/components/payment/MembershipPayment";
 
+interface Package {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  discountedPrice: number;
+  duration: number;
+  durationUnit: 'days' | 'weeks' | 'months' | 'years';
+  formattedDuration: string;
+  benefits: string[];
+  services: string[];
+  discountPercentage: number;
+  savingsAmount: number;
+  maxAppointments: number | null;
+  isActive: boolean;
+  isPopular: boolean;
+  sortOrder: number;
+  termsAndConditions?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function Membership() {
   const { user } = useAuth();
   // const { purchaseMembership, loading: actionLoading, error: actionError } = useMembershipActions();
   const [selectedPlan, setSelectedPlan] = useState("");
-  const [packages, setPackages] = useState([]);
+  const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState(null);
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   // Fetch packages from backend
   useEffect(() => {

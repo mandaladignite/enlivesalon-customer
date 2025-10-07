@@ -30,6 +30,8 @@ interface GalleryImage {
     height: number;
   };
   aspectRatio: number;
+  views: number;
+  likes: number;
 }
 
 interface GalleryStats {
