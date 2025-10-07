@@ -232,7 +232,10 @@ export default function AdminGallery() {
       }
 
       if (Object.keys(updateData).length > 0) {
-        await galleryAPI.bulkUpdate(imageIds, updateData);
+        // Update each image individually
+        for (const imageId of imageIds) {
+          await galleryAPI.updateAdmin(imageId, updateData);
+        }
         setSelectedImages(new Set());
         fetchImages();
         fetchStats(); // Refresh stats after update
