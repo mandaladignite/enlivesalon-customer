@@ -1638,13 +1638,13 @@ export default function AdminMembershipsPage() {
                     Benefits
                   </label>
                   <div className="space-y-2">
-                    {newPackageData.benefits.map((benefit, index) => (
+                    {newPackageData.benefits?.map((benefit, index) => (
                       <div key={index} className="flex gap-2">
                         <input
                           type="text"
                           value={benefit}
                           onChange={(e) => {
-                            const newBenefits = [...newPackageData.benefits];
+                            const newBenefits = [...(newPackageData.benefits || [])];
                             newBenefits[index] = e.target.value;
                             setNewPackageData(prev => ({ ...prev, benefits: newBenefits }));
                           }}
