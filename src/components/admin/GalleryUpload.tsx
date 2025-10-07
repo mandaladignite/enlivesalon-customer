@@ -179,7 +179,7 @@ export default function GalleryUpload({ isOpen, onClose, onUploadComplete }: Gal
       formData.append('altText', file.altText);
       formData.append('isFeatured', file.isFeatured.toString());
 
-      const response = await galleryAPI.uploadSingle(formData);
+      const response = await galleryAPI.upload(formData);
       
       if (response.success) {
         updateFile(file.id, { status: 'success' });
@@ -237,7 +237,7 @@ export default function GalleryUpload({ isOpen, onClose, onUploadComplete }: Gal
     });
 
     try {
-      const response = await galleryAPI.uploadMultiple(formData);
+      const response = await galleryAPI.upload(formData);
       
       if (response.success) {
         files.forEach(file => {

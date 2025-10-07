@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { enquiryAPI } from '@/lib/api';
-import { Enquiry, EnquiryPaginationResponse, EnquiryFilters, ENQUIRY_STATUSES, PRIORITY_LEVELS } from '@/types/enquiry';
+import { Enquiry, EnquiryPaginationResponse, EnquiryFilters, EnquiryStatus, Priority, ENQUIRY_STATUSES, PRIORITY_LEVELS } from '@/types/enquiry';
 
 interface EnquiryListProps {
   className?: string;
@@ -138,7 +138,7 @@ export default function EnquiryList({ className = "" }: EnquiryListProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <select
               value={filters.status || ''}
-              onChange={(e) => handleFilterChange({ status: e.target.value || undefined })}
+              onChange={(e) => handleFilterChange({ status: e.target.value as EnquiryStatus || undefined })}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold transition-colors"
             >
               <option value="">All Statuses</option>
@@ -154,7 +154,7 @@ export default function EnquiryList({ className = "" }: EnquiryListProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
             <select
               value={filters.priority || ''}
-              onChange={(e) => handleFilterChange({ priority: e.target.value || undefined })}
+              onChange={(e) => handleFilterChange({ priority: e.target.value as Priority || undefined })}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold transition-colors"
             >
               <option value="">All Priorities</option>

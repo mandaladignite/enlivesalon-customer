@@ -5,29 +5,7 @@ import { Plus, MapPin } from 'lucide-react';
 import { useAddress } from '@/hooks/useAddress';
 import AddressForm from './AddressForm';
 import AddressList from './AddressList';
-
-interface Address {
-  _id: string;
-  label: string;
-  street: string;
-  city: string;
-  state: string;
-  pincode: string;
-  country: string;
-  landmark?: string;
-  isDefault: boolean;
-  addressType: 'home' | 'work' | 'other';
-  coordinates?: {
-    latitude: number;
-    longitude: number;
-  };
-  contactNumber?: string;
-  instructions?: string;
-  formattedAddress?: string;
-  shortAddress?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { Address } from '@/types/address';
 
 export default function AddressManagement() {
   const {
@@ -64,7 +42,7 @@ export default function AddressManagement() {
     try {
       setSaving(true);
 
-      if (editingAddress) {
+      if (editingAddress && editingAddress._id) {
         await updateAddress(editingAddress._id, addressData);
       } else {
         await createAddress(addressData);

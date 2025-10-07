@@ -340,6 +340,12 @@ export const stylistAPI = {
   toggleActive: (id: string) =>
     apiRequest(`/stylists/${id}/toggle-active`, { method: 'PATCH' }),
   
+  deactivate: (id: string) =>
+    apiRequest(`/stylists/${id}/deactivate`, { method: 'PATCH' }),
+  
+  reactivate: (id: string) =>
+    apiRequest(`/stylists/${id}/reactivate`, { method: 'PATCH' }),
+  
   uploadPhoto: (id: string, photo: File) => {
     const formData = new FormData();
     formData.append('photo', photo);
@@ -456,6 +462,11 @@ export const appointmentAPI = {
   getOverviewStats: (params?: any) => {
     const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
     return apiRequest(`/appointments/stats/overview${queryString}`);
+  },
+
+  getTodaysAppointments: (params?: any) => {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return apiRequest(`/appointments/today${queryString}`);
   },
 };
 
@@ -892,6 +903,12 @@ export const addressAPI = {
   
   setDefault: (id: string) =>
     apiRequest(`/addresses/${id}/default`, { method: 'PATCH' }),
+
+  duplicate: (id: string, newLabel: string) =>
+    apiRequest(`/addresses/${id}/duplicate`, {
+      method: 'POST',
+      body: JSON.stringify({ newLabel }),
+    }),
 };
 
 // WhatsApp APIs

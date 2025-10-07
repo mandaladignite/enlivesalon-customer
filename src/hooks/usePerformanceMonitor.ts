@@ -138,8 +138,6 @@ export function useMemoryMonitor() {
       if (memoryInfo.usage > 80) {
         console.warn('🚨 High memory usage detected:', memoryInfo.usage.toFixed(2), '%');
       }
-
-      return memoryInfo;
     }
   }, []);
 

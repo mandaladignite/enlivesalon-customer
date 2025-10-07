@@ -28,10 +28,10 @@ export default function AdminDashboard() {
       icon: Users,
     },
     {
-      name: 'Services Booked',
-      value: dashboardData.stats.servicesBooked.value.toString(),
-      change: dashboardData.stats.servicesBooked.change,
-      trend: dashboardData.stats.servicesBooked.trend,
+      name: 'Total Bookings',
+      value: dashboardData.stats.totalBookings.value.toString(),
+      change: dashboardData.stats.totalBookings.change,
+      trend: dashboardData.stats.totalBookings.trend,
       icon: Calendar,
     },
     {
@@ -75,7 +75,7 @@ export default function AdminDashboard() {
   // Dynamic recent bookings from API
   const recentBookings = dashboardData?.recentBookings || [];
 
-  const statusStyles = {
+  const statusStyles: Record<string, string> = {
     Confirmed: 'bg-green-100 text-green-800',
     Pending: 'bg-yellow-100 text-yellow-800',
     Completed: 'bg-blue-100 text-blue-800',

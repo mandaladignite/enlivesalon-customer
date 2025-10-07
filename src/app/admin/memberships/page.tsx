@@ -140,10 +140,10 @@ export default function AdminMembershipsPage() {
     };
 
     if (selectedStatus !== "all") {
-      newFilters.status = selectedStatus as any;
+      newFilters.status = selectedStatus as 'active' | 'expired' | 'expiring_soon';
     }
     if (selectedPaymentStatus !== "all") {
-      newFilters.paymentStatus = selectedPaymentStatus as any;
+      newFilters.paymentStatus = selectedPaymentStatus as 'pending' | 'paid' | 'failed' | 'refunded';
     }
     if (searchTerm.trim()) {
       newFilters.search = searchTerm.trim();
@@ -1542,7 +1542,7 @@ export default function AdminMembershipsPage() {
                       />
                       <select
                         value={newPackageData.durationUnit}
-                        onChange={(e) => setNewPackageData(prev => ({ ...prev, durationUnit: e.target.value as any }))}
+                        onChange={(e) => setNewPackageData(prev => ({ ...prev, durationUnit: e.target.value as 'days' | 'weeks' | 'months' | 'years' }))}
                         className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                       >
                         <option value="days">Days</option>
@@ -1654,7 +1654,7 @@ export default function AdminMembershipsPage() {
                         <button
                           type="button"
                           onClick={() => {
-                            const newBenefits = newPackageData.benefits.filter((_, i) => i !== index);
+                            const newBenefits = (newPackageData.benefits || []).filter((_, i) => i !== index);
                             setNewPackageData(prev => ({ ...prev, benefits: newBenefits }));
                           }}
                           className="px-3 py-2 text-red-600 hover:text-red-800"
@@ -1665,7 +1665,7 @@ export default function AdminMembershipsPage() {
                     ))}
                     <button
                       type="button"
-                      onClick={() => setNewPackageData(prev => ({ ...prev, benefits: [...prev.benefits, ''] }))}
+                      onClick={() => setNewPackageData(prev => ({ ...prev, benefits: [...(prev.benefits || []), ''] }))}
                       className="flex items-center gap-2 px-3 py-2 text-yellow-600 hover:text-yellow-800"
                     >
                       <Plus className="w-4 h-4" />
@@ -1712,27 +1712,27 @@ export default function AdminMembershipsPage() {
                 </div>
 
                 {/* Price Preview */}
-                {newPackageData.price > 0 && (
+                {(newPackageData.price || 0) > 0 && (
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <h3 className="text-lg font-semibold mb-2">Price Preview</h3>
                     <div className="flex items-center gap-4">
                       <div>
                         <span className="text-sm text-gray-600">Original Price:</span>
-                        <span className="ml-2 text-lg font-semibold">₹{newPackageData.price}</span>
+                        <span className="ml-2 text-lg font-semibold">₹{newPackageData.price || 0}</span>
                       </div>
-                      {newPackageData.discountPercentage > 0 && (
+                      {(newPackageData.discountPercentage || 0) > 0 && (
                         <>
                           <div>
                             <span className="text-sm text-gray-600">Discount:</span>
-                            <span className="ml-2 text-lg font-semibold text-green-600">{newPackageData.discountPercentage}%</span>
+                            <span className="ml-2 text-lg font-semibold text-green-600">{newPackageData.discountPercentage || 0}%</span>
                           </div>
                           <div>
                             <span className="text-sm text-gray-600">Discounted Price:</span>
-                            <span className="ml-2 text-lg font-bold text-yellow-600">₹{Math.round(newPackageData.price * (1 - newPackageData.discountPercentage / 100))}</span>
+                            <span className="ml-2 text-lg font-bold text-yellow-600">₹{Math.round((newPackageData.price || 0) * (1 - (newPackageData.discountPercentage || 0) / 100))}</span>
                           </div>
                           <div>
                             <span className="text-sm text-gray-600">You Save:</span>
-                            <span className="ml-2 text-lg font-semibold text-green-600">₹{Math.round(newPackageData.price * (newPackageData.discountPercentage / 100))}</span>
+                            <span className="ml-2 text-lg font-semibold text-green-600">₹{Math.round((newPackageData.price || 0) * ((newPackageData.discountPercentage || 0) / 100))}</span>
                           </div>
                         </>
                       )}
@@ -1815,7 +1815,7 @@ export default function AdminMembershipsPage() {
                       />
                       <select
                         value={editPackageData.durationUnit}
-                        onChange={(e) => setEditPackageData(prev => ({ ...prev, durationUnit: e.target.value as any }))}
+                        onChange={(e) => setEditPackageData(prev => ({ ...prev, durationUnit: e.target.value as 'days' | 'weeks' | 'months' | 'years' }))}
                         className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                       >
                         <option value="days">Days</option>
@@ -1911,13 +1911,13 @@ export default function AdminMembershipsPage() {
                     Benefits
                   </label>
                   <div className="space-y-2">
-                    {editPackageData.benefits.map((benefit, index) => (
+                    {(editPackageData.benefits || []).map((benefit, index) => (
                       <div key={index} className="flex gap-2">
                         <input
                           type="text"
                           value={benefit}
                           onChange={(e) => {
-                            const newBenefits = [...editPackageData.benefits];
+                            const newBenefits = [...(editPackageData.benefits || [])];
                             newBenefits[index] = e.target.value;
                             setEditPackageData(prev => ({ ...prev, benefits: newBenefits }));
                           }}
@@ -1927,7 +1927,7 @@ export default function AdminMembershipsPage() {
                         <button
                           type="button"
                           onClick={() => {
-                            const newBenefits = editPackageData.benefits.filter((_, i) => i !== index);
+                            const newBenefits = (editPackageData.benefits || []).filter((_, i) => i !== index);
                             setEditPackageData(prev => ({ ...prev, benefits: newBenefits }));
                           }}
                           className="px-3 py-2 text-red-600 hover:text-red-800"
@@ -1938,7 +1938,7 @@ export default function AdminMembershipsPage() {
                     ))}
                     <button
                       type="button"
-                      onClick={() => setEditPackageData(prev => ({ ...prev, benefits: [...prev.benefits, ''] }))}
+                      onClick={() => setEditPackageData(prev => ({ ...prev, benefits: [...(prev.benefits || []), ''] }))}
                       className="flex items-center gap-2 px-3 py-2 text-yellow-600 hover:text-yellow-800"
                     >
                       <Plus className="w-4 h-4" />
@@ -1985,27 +1985,27 @@ export default function AdminMembershipsPage() {
                 </div>
 
                 {/* Price Preview */}
-                {editPackageData.price > 0 && (
+                {(editPackageData.price || 0) > 0 && (
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <h3 className="text-lg font-semibold mb-2">Price Preview</h3>
                     <div className="flex items-center gap-4">
                       <div>
                         <span className="text-sm text-gray-600">Original Price:</span>
-                        <span className="ml-2 text-lg font-semibold">₹{editPackageData.price}</span>
+                        <span className="ml-2 text-lg font-semibold">₹{editPackageData.price || 0}</span>
                       </div>
-                      {editPackageData.discountPercentage > 0 && (
+                      {(editPackageData.discountPercentage || 0) > 0 && (
                         <>
                           <div>
                             <span className="text-sm text-gray-600">Discount:</span>
-                            <span className="ml-2 text-lg font-semibold text-green-600">{editPackageData.discountPercentage}%</span>
+                            <span className="ml-2 text-lg font-semibold text-green-600">{editPackageData.discountPercentage || 0}%</span>
                           </div>
                           <div>
                             <span className="text-sm text-gray-600">Discounted Price:</span>
-                            <span className="ml-2 text-lg font-bold text-yellow-600">₹{Math.round(editPackageData.price * (1 - editPackageData.discountPercentage / 100))}</span>
+                            <span className="ml-2 text-lg font-bold text-yellow-600">₹{Math.round((editPackageData.price || 0) * (1 - (editPackageData.discountPercentage || 0) / 100))}</span>
                           </div>
                           <div>
                             <span className="text-sm text-gray-600">You Save:</span>
-                            <span className="ml-2 text-lg font-semibold text-green-600">₹{Math.round(editPackageData.price * (editPackageData.discountPercentage / 100))}</span>
+                            <span className="ml-2 text-lg font-semibold text-green-600">₹{Math.round((editPackageData.price || 0) * ((editPackageData.discountPercentage || 0) / 100))}</span>
                           </div>
                         </>
                       )}

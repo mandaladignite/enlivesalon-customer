@@ -168,13 +168,13 @@ export function VirtualizedGrid<T>({
 
   const visibleItems = useMemo(() => {
     const { startRow, endRow } = visibleRange;
-    const items: Array<{ item: T; index: number; row: number; col: number }> = [];
+    const result: Array<{ item: T; index: number; row: number; col: number }> = [];
     
     for (let row = startRow; row <= endRow; row++) {
       for (let col = 0; col < itemsPerRow; col++) {
         const index = row * itemsPerRow + col;
         if (index < items.length) {
-          items.push({
+          result.push({
             item: items[index],
             index,
             row,
@@ -184,7 +184,7 @@ export function VirtualizedGrid<T>({
       }
     }
     
-    return items;
+    return result;
   }, [items, visibleRange, itemsPerRow]);
 
   const totalHeight = totalRows * rowHeight;

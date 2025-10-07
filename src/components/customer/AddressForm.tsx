@@ -2,32 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { MapPin, Home, Building, Map, Phone, MessageSquare, Save, X, Loader } from 'lucide-react';
-
-interface Address {
-  _id?: string;
-  label: string;
-  street: string;
-  city: string;
-  state: string;
-  pincode: string;
-  country: string;
-  landmark?: string;
-  isDefault: boolean;
-  addressType: 'home' | 'work' | 'other';
-  coordinates?: {
-    latitude: number;
-    longitude: number;
-  };
-  contactNumber?: string;
-  instructions?: string;
-}
-
-interface AddressFormProps {
-  address?: Address;
-  onSave: (addressData: Address) => Promise<void>;
-  onCancel: () => void;
-  loading?: boolean;
-}
+import { Address, AddressFormProps } from '@/types/address';
 
 const addressTypes = [
   { value: 'home', label: 'Home', icon: Home },

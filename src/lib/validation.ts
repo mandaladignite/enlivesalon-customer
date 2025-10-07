@@ -7,7 +7,7 @@ export interface ValidationRule {
   minLength?: number;
   maxLength?: number;
   pattern?: RegExp;
-  custom?: (value: any) => string | null;
+  custom?: (value: any, data?: any) => string | null;
   message?: string;
 }
 
@@ -23,7 +23,7 @@ export interface ValidationResult {
 /**
  * Validate a single field against a rule
  */
-export function validateField(value: any, rule: ValidationRule): string | null {
+export function validateField(value: any, rule: ValidationRule, data?: any): string | null {
   // Required validation
   if (rule.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
     return rule.message || 'This field is required';
@@ -51,7 +51,7 @@ export function validateField(value: any, rule: ValidationRule): string | null {
 
   // Custom validation
   if (rule.custom) {
-    return rule.custom(value);
+    return rule.custom(value, data);
   }
 
   return null;
@@ -65,7 +65,7 @@ export function validateObject(data: any, schema: ValidationSchema): ValidationR
 
   for (const [field, rule] of Object.entries(schema)) {
     const value = data[field];
-    const error = validateField(value, rule);
+    const error = validateField(value, rule, data);
     if (error) {
       errors[field] = error;
     }
@@ -181,14 +181,14 @@ export function validateBookingData(data: any): ValidationResult {
       // Handle nested fields like address.street
       const [parent, child] = field.split('.');
       const value = data[parent]?.[child];
-      const error = validateField(value, rule);
+      const error = validateField(value, rule, data);
       if (error) {
         errors[field] = error;
       }
     } else {
       // Handle top-level fields
       const value = data[field];
-      const error = validateField(value, rule);
+      const error = validateField(value, rule, data);
       if (error) {
         errors[field] = error;
       }
@@ -224,7 +224,7 @@ export function validateFieldRealtime(
   const rule = bookingValidationSchema[field];
   if (!rule) return null;
 
-  return validateField(value, rule);
+  return validateField(value, rule, data);
 }
 
 /**

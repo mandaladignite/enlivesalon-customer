@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { enquiryAPI } from '@/lib/api';
-import { Enquiry, EnquiryPaginationResponse, EnquiryFilters, EnquiryStats, ENQUIRY_STATUSES, PRIORITY_LEVELS, RESPONSE_METHODS } from '@/types/enquiry';
+import { Enquiry, EnquiryPaginationResponse, EnquiryFilters, EnquiryStats, EnquiryStatus, Priority, EnquiryType, ENQUIRY_STATUSES, ENQUIRY_TYPES, PRIORITY_LEVELS, RESPONSE_METHODS } from '@/types/enquiry';
 import { 
   MessageSquare, 
   Eye, 
@@ -506,7 +506,7 @@ export default function EnquiryManagement({ className = "" }: EnquiryManagementP
               <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
               <select
                 value={filters.status || ''}
-                onChange={(e) => handleFilterChange({ status: e.target.value || undefined })}
+                onChange={(e) => handleFilterChange({ status: e.target.value as EnquiryStatus || undefined })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">All Statuses</option>
@@ -522,7 +522,7 @@ export default function EnquiryManagement({ className = "" }: EnquiryManagementP
               <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
               <select
                 value={filters.priority || ''}
-                onChange={(e) => handleFilterChange({ priority: e.target.value || undefined })}
+                onChange={(e) => handleFilterChange({ priority: e.target.value as Priority || undefined })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">All Priorities</option>
@@ -723,7 +723,7 @@ export default function EnquiryManagement({ className = "" }: EnquiryManagementP
                         </div>
                         {enquiry.userId && (
                           <div className="text-xs text-blue-600">
-                            ID: {enquiry.userId}
+                            ID: {enquiry.userId._id}
                           </div>
                         )}
                       </div>
@@ -990,23 +990,21 @@ export default function EnquiryManagement({ className = "" }: EnquiryManagementP
               )}
 
               {/* Responses */}
-              {selectedEnquiry.responses && selectedEnquiry.responses.length > 0 && (
+              {selectedEnquiry.response && (
                 <div className="mt-6">
                   <h4 className="text-lg font-semibold text-gray-900 mb-4">Responses</h4>
                   <div className="space-y-4">
-                    {selectedEnquiry.responses.map((response, index) => (
-                      <div key={index} className="bg-blue-50 p-4 rounded-lg">
-                        <div className="flex justify-between items-start mb-2">
-                          <span className="text-sm font-medium text-blue-900">
-                            {response.method} response
-                          </span>
-                          <span className="text-xs text-blue-600">
-                            {new Date(response.createdAt).toLocaleString()}
-                          </span>
-                        </div>
-                        <p className="text-blue-800">{response.message}</p>
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-sm font-medium text-blue-900">
+                          {selectedEnquiry.response.responseMethod} response
+                        </span>
+                        <span className="text-xs text-blue-600">
+                          {selectedEnquiry.response.respondedAt && new Date(selectedEnquiry.response.respondedAt).toLocaleString()}
+                        </span>
                       </div>
-                    ))}
+                      <p className="text-blue-800">{selectedEnquiry.response.message}</p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1099,7 +1097,7 @@ export default function EnquiryManagement({ className = "" }: EnquiryManagementP
                     <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
                     <select
                       value={editData.enquiryType || ''}
-                      onChange={(e) => setEditData({...editData, enquiryType: e.target.value})}
+                      onChange={(e) => setEditData({...editData, enquiryType: e.target.value as EnquiryType})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
                     >
                       {ENQUIRY_TYPES.map(type => (
@@ -1113,7 +1111,7 @@ export default function EnquiryManagement({ className = "" }: EnquiryManagementP
                     <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
                     <select
                       value={editData.priority || ''}
-                      onChange={(e) => setEditData({...editData, priority: e.target.value})}
+                      onChange={(e) => setEditData({...editData, priority: e.target.value as Priority})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
                     >
                       {PRIORITY_LEVELS.map(priority => (
@@ -1127,7 +1125,7 @@ export default function EnquiryManagement({ className = "" }: EnquiryManagementP
                     <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select
                       value={editData.status || ''}
-                      onChange={(e) => setEditData({...editData, status: e.target.value})}
+                      onChange={(e) => setEditData({...editData, status: e.target.value as EnquiryStatus})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
                     >
                       {ENQUIRY_STATUSES.map(status => (

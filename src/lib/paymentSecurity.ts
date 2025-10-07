@@ -1,4 +1,4 @@
-import { ApiError } from './errorHandler';
+import { BookingError } from './errorHandler';
 
 interface User {
   _id: string;
@@ -157,7 +157,7 @@ class PaymentSecurity {
           const validation = this.validatePaymentResponse(response, appointment);
           
           if (!Object.values(validation.checks).every(check => check)) {
-            throw new ApiError(400, 'Payment validation failed');
+            throw new BookingError('Payment validation failed', 'PAYMENT_VALIDATION_FAILED');
           }
 
           console.log('Payment response validation passed:', {
@@ -167,7 +167,9 @@ class PaymentSecurity {
           });
 
           // Clear rate limiting attempts on successful payment
-          this.clearAttempts(user?._id);
+          if (user?._id) {
+            this.clearAttempts(user._id);
+          }
           
           // Redirect to success page
           window.location.href = `/appointments/${appointment._id}?success=true`;

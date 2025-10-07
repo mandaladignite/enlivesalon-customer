@@ -156,7 +156,7 @@ export default function ServicesPage() {
       resetForm()
       fetchServices()
     } catch (err) {
-      setError('Error saving service: ' + (err.message || 'Unknown error'))
+      setError('Error saving service: ' + (err instanceof Error ? err.message : 'Unknown error'))
       console.error('Error:', err)
     } finally {
       setUploading(false)
@@ -250,15 +250,6 @@ export default function ServicesPage() {
     }
   }
 
-  const handleUpdateSortOrder = async (id: string, sortOrder: number) => {
-    try {
-      await serviceAPI.updateSortOrder(id, sortOrder)
-      fetchServices()
-    } catch (err) {
-      setError('Error updating sort order')
-      console.error('Error:', err)
-    }
-  }
 
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60)

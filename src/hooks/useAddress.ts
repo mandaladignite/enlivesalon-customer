@@ -100,7 +100,7 @@ export function useAddress() {
   const duplicateAddress = async (id: string, newLabel?: string) => {
     try {
       setError('');
-      const response = await addressAPI.duplicate(id, newLabel);
+      const response = await addressAPI.duplicate(id, newLabel || 'Copy');
       setAddresses(prev => [response.data, ...prev]);
       return response.data;
     } catch (error: any) {

@@ -88,20 +88,20 @@ export default function BookingDashboard() {
       // Calculate stats from appointments
       const appointments = appointmentsResponse.data?.appointments || [];
       const today = new Date().toDateString();
-      const todayAppts = appointments.filter(apt => 
+      const todayAppts = appointments.filter((apt: Appointment) => 
         new Date(apt.date).toDateString() === today
       );
-      const upcomingAppts = appointments.filter(apt => 
+      const upcomingAppts = appointments.filter((apt: Appointment) => 
         new Date(apt.date) > new Date()
       );
 
       setStats({
         totalAppointments: appointments.length,
-        pendingAppointments: appointments.filter(apt => apt.status === 'pending').length,
-        confirmedAppointments: appointments.filter(apt => apt.status === 'confirmed').length,
-        completedAppointments: appointments.filter(apt => apt.status === 'completed').length,
-        cancelledAppointments: appointments.filter(apt => apt.status === 'cancelled').length,
-        totalRevenue: appointments.reduce((sum, apt) => sum + apt.totalPrice, 0),
+        pendingAppointments: appointments.filter((apt: Appointment) => apt.status === 'pending').length,
+        confirmedAppointments: appointments.filter((apt: Appointment) => apt.status === 'confirmed').length,
+        completedAppointments: appointments.filter((apt: Appointment) => apt.status === 'completed').length,
+        cancelledAppointments: appointments.filter((apt: Appointment) => apt.status === 'cancelled').length,
+        totalRevenue: appointments.reduce((sum: number, apt: Appointment) => sum + apt.totalPrice, 0),
         todayAppointments: todayAppts.length,
         upcomingAppointments: upcomingAppts.length,
       });

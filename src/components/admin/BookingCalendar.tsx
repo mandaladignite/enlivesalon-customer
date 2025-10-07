@@ -12,7 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Filter,
-  Search
+  Search,
+  DollarSign
 } from 'lucide-react';
 import { appointmentAPI } from '@/lib/api';
 
@@ -29,6 +30,7 @@ interface CalendarAppointment {
     price: number;
   };
   stylistId?: {
+    _id: string;
     name: string;
     specialties: string[];
   };
@@ -88,7 +90,7 @@ export default function BookingCalendar() {
       let filteredAppointments = response.data?.appointments || [];
 
       if (filterStylist !== 'all') {
-        filteredAppointments = filteredAppointments.filter(apt => 
+        filteredAppointments = filteredAppointments.filter((apt: CalendarAppointment) => 
           apt.stylistId?._id === filterStylist
         );
       }

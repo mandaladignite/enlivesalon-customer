@@ -110,7 +110,7 @@ export const useMembershipActions = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await membershipAPI.purchase(packageId, paymentMethod, notes);
+      const response = await membershipAPI.purchase(packageId, notes);
       if (response.success) {
         return response.data;
       } else {

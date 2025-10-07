@@ -231,6 +231,19 @@ interface SystemStatusIndicatorProps {
 export function SystemStatusIndicator({ className = '' }: SystemStatusIndicatorProps) {
   const [status, setStatus] = useState<'healthy' | 'unhealthy' | 'error' | null>(null);
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'healthy':
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'unhealthy':
+        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
+      case 'error':
+        return <AlertTriangle className="h-5 w-5 text-red-500" />;
+      default:
+        return <Clock className="h-5 w-5 text-gray-500" />;
+    }
+  };
+
   useEffect(() => {
     const fetchStatus = async () => {
       try {

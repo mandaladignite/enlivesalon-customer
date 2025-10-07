@@ -23,7 +23,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateProfile: (userData: Partial<User>) => Promise<void>;
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
-  refreshToken: () => Promise<void>;
+  refreshToken: () => Promise<boolean>;
 }
 
 interface RegisterData {
