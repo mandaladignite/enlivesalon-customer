@@ -55,9 +55,7 @@ export default function GalleryUpload({ isOpen, onClose, onUploadComplete }: Gal
     isFeatured: false
   });
 
-  // Debug bulk settings changes
   useEffect(() => {
-    console.log('Bulk settings updated:', bulkSettings);
   }, [bulkSettings]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -192,8 +190,6 @@ export default function GalleryUpload({ isOpen, onClose, onUploadComplete }: Gal
   };
 
   const uploadMultipleFiles = async () => {
-    console.log('Starting upload with bulkSettings:', bulkSettings);
-    console.log('Files to upload:', files.length);
     
     const formData = new FormData();
     
@@ -202,19 +198,14 @@ export default function GalleryUpload({ isOpen, onClose, onUploadComplete }: Gal
       formData.append(`title_${index}`, file.title);
       formData.append(`description_${index}`, file.description);
       formData.append(`altText_${index}`, file.altText);
-      console.log(`File ${index} category:`, file.category);
     });
 
     // Ensure category is set, fallback to 'Hair' if undefined
     const category = bulkSettings.category || 'Hair';
-    console.log('Final category being sent:', category);
-    console.log('Category validation:', category, 'Valid categories:', ['Hair', 'Skin', 'Nail', 'Body']);
-    console.log('All form data entries:');
     
     // Validate category before sending
     const validCategories = ['Hair', 'Skin', 'Nail', 'Body'];
     const finalCategory = validCategories.includes(category) ? category : 'Hair';
-    console.log('Final validated category:', finalCategory);
     
     formData.append('category', finalCategory);
     formData.append('subcategory', bulkSettings.subcategory || '');
@@ -222,14 +213,6 @@ export default function GalleryUpload({ isOpen, onClose, onUploadComplete }: Gal
     formData.append('isFeatured', bulkSettings.isFeatured.toString());
     
     // Log all form data entries
-    console.log('=== FRONTEND FORM DATA DEBUG ===');
-    console.log('FormData entries:');
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
-    }
-    console.log('FormData images:', formData.getAll('images').length, 'files');
-    console.log('Category being sent:', finalCategory);
-    console.log('Bulk settings:', bulkSettings);
 
     // Update all files to uploading status
     files.forEach(file => {

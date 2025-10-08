@@ -117,8 +117,6 @@ class PaymentSecurity {
     razorpayKey: string,
     shippingAddress?: string
   ): RazorpayConfig {
-    console.log('Razorpay Key:', razorpayKey);
-    console.log('Appointment Details:', {
       appointmentId: appointment._id,
       appointmentNumber: appointment.appointmentNumber,
       totalAmount: appointment.totalAmount,
@@ -147,7 +145,6 @@ class PaymentSecurity {
       },
       handler: async (response: PaymentResponse) => {
         try {
-          console.log('Payment response received:', {
             paymentId: response.razorpay_payment_id,
             orderId: response.razorpay_order_id,
             signature: response.razorpay_signature.substring(0, 8) + '...'
@@ -160,7 +157,6 @@ class PaymentSecurity {
             throw new BookingError('Payment validation failed', 'PAYMENT_VALIDATION_FAILED');
           }
 
-          console.log('Payment response validation passed:', {
             paymentId: response.razorpay_payment_id,
             signature: response.razorpay_signature.substring(0, 8) + '...',
             appointmentId: appointment._id

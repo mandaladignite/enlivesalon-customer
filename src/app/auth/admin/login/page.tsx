@@ -13,6 +13,7 @@ export default function AdminLogin() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { login } = useAdminAuth();
@@ -37,9 +38,19 @@ export default function AdminLogin() {
 
     try {
       await login(credentials.email, credentials.password);
-      router.push("/admin");
+      
+      // Show success message
+      setSuccess(true);
+      setError('');
+      
+      // Wait a bit longer to ensure all state updates are complete
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Use replace instead of push to avoid back button issues
+      router.replace("/admin");
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.');
+      setSuccess(false);
     } finally {
       setIsLoading(false);
     }
@@ -97,6 +108,16 @@ export default function AdminLogin() {
                   className="mb-6 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm"
                 >
                   {error}
+                </motion.div>
+              )}
+
+              {success && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 p-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm"
+                >
+                  ✅ Login successful! Redirecting to admin panel...
                 </motion.div>
               )}
 

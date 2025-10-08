@@ -38,11 +38,9 @@ export const useMemberships = (status?: string) => {
     try {
       setLoading(true);
       setError(null);
-      console.log('Fetching memberships with status:', status);
       // Only include status in the request if it's provided and not 'all'
       const params = status && status !== 'all' ? { status } : {};
       const response = await membershipAPI.getMyAll(params);
-      console.log('Membership API response:', response);
       if (response.success) {
         setMemberships(response.data.memberships);
       } else {

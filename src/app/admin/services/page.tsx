@@ -124,26 +124,10 @@ export default function ServicesPage() {
       formDataToSend.append('isFeatured', formData.isFeatured.toString())
       formDataToSend.append('sortOrder', formData.sortOrder.toString())
       
-      console.log('=== FRONTEND FORM SUBMISSION DEBUG ===')
-      console.log('Selected file:', selectedFile)
-      console.log('File details:', selectedFile ? {
-        name: selectedFile.name,
-        size: selectedFile.size,
-        type: selectedFile.type
-      } : 'No file selected')
       
       if (selectedFile) {
         formDataToSend.append('photo', selectedFile)
-        console.log('File appended to FormData')
-      } else {
-        console.log('No file to append')
-      }
 
-      // Log FormData contents
-      console.log('FormData entries:')
-      for (let [key, value] of formDataToSend.entries()) {
-        console.log(key, value)
-      }
 
       if (editingService) {
         await serviceAPI.update(editingService._id, formDataToSend)

@@ -62,11 +62,6 @@ export function usePerformanceMonitor() {
   const logMetrics = () => {
     const metrics = getMetrics();
     console.group('🚀 Performance Metrics');
-    console.log('First Contentful Paint:', metrics.fcp?.toFixed(2), 'ms');
-    console.log('Largest Contentful Paint:', metrics.lcp?.toFixed(2), 'ms');
-    console.log('First Input Delay:', metrics.fid?.toFixed(2), 'ms');
-    console.log('Cumulative Layout Shift:', metrics.cls?.toFixed(3));
-    console.log('Time to First Byte:', metrics.ttfb?.toFixed(2), 'ms');
     console.groupEnd();
   };
 
@@ -110,11 +105,9 @@ export function useRenderPerformance(componentName: string) {
     const renderTime = renderEnd - renderStartRef.current;
 
     if (renderTime > 16) { // More than one frame (16ms at 60fps)
-      console.warn(`🐌 Slow render detected in ${componentName}:`, renderTime.toFixed(2), 'ms');
     }
 
     if (renderCountRef.current > 10) {
-      console.warn(`🔄 Excessive re-renders detected in ${componentName}:`, renderCountRef.current, 'renders');
     }
   });
 
@@ -136,7 +129,6 @@ export function useMemoryMonitor() {
       };
 
       if (memoryInfo.usage > 80) {
-        console.warn('🚨 High memory usage detected:', memoryInfo.usage.toFixed(2), '%');
       }
     }
   }, []);

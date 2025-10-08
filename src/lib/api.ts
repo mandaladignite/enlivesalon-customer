@@ -34,16 +34,9 @@ export async function apiRequest<T = any>(
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       if (attempt > 0) {
-        console.log(`Retrying API request (attempt ${attempt + 1}/${maxRetries + 1})...`);
         await new Promise(resolve => setTimeout(resolve, retryDelay * attempt));
       }
 
-      console.log('=== API REQUEST DEBUG ===');
-      console.log('Making request to:', `${API_BASE_URL}${path}`);
-      console.log('Request method:', config.method);
-      console.log('Request headers:', config.headers);
-      console.log('Request body type:', typeof config.body);
-      console.log('Request body is FormData:', config.body instanceof FormData);
       
       const res = await fetch(`${API_BASE_URL}${path}`, config);
 
@@ -65,7 +58,6 @@ export async function apiRequest<T = any>(
         
         // If we get a 401 and haven't tried refreshing the token yet, try to refresh
         if (res.status === 401 && !hasTriedRefresh && typeof window !== 'undefined') {
-          console.log('Received 401, attempting to refresh token...');
           hasTriedRefresh = true;
           
           try {
@@ -86,7 +78,6 @@ export async function apiRequest<T = any>(
                   ...config.headers,
                   Authorization: `Bearer ${refreshData.data.accessToken}`
                 };
-                console.log('Token refreshed successfully, retrying request...');
                 continue; // Retry the original request with new token
               }
             }
@@ -111,8 +102,6 @@ export async function apiRequest<T = any>(
         data = await res.text();
       }
 
-      console.log('API Response:', data);
-      console.log('=== END API REQUEST DEBUG ===');
       
       return data;
     } catch (error) {

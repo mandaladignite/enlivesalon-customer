@@ -254,7 +254,7 @@ export function getErrorDetails(error: Error): ErrorDetails {
 }
 
 /**
- * Log error for debugging
+ * Log error
  */
 export function logError(error: Error, context?: any): void {
   const errorDetails = getErrorDetails(error);

@@ -71,7 +71,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(response.data);
     } catch (error) {
       // If profile check fails, clear the token and user
-      console.log('Auth check failed, clearing user session');
       setUser(null);
       localStorage.removeItem('accessToken');
       
@@ -176,7 +175,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return false;
     } catch (error) {
       // If refresh fails, logout user
-      console.log('Token refresh failed, logging out user');
       setUser(null);
       localStorage.removeItem('accessToken');
       return false;

@@ -2,7 +2,7 @@
 import { Inter } from 'next/font/google';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AdminSidebar from '@/components/admin/AdminSidebar';
-import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
+import AdminLoginRedirect from '@/components/admin/AdminLoginRedirect';
 import { AdminAuthProvider } from '@/contexts/AdminAuthContext';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'] });
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <AdminAuthProvider>
-      <AdminRouteGuard>
+      <AdminLoginRedirect>
         <div className={`flex h-screen ${inter.className}`}>
           <AdminSidebar />
           <div className="flex-1 flex flex-col overflow-hidden">
@@ -20,7 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </main>
           </div>
         </div>
-      </AdminRouteGuard>
+      </AdminLoginRedirect>
     </AdminAuthProvider>
   );
 }

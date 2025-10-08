@@ -135,7 +135,6 @@ export function useBooking(): UseBookingReturn {
           maxRetries: 3,
           retryDelay: 1000,
           onRetry: (attempt, error) => {
-            console.log(`Retrying booking (attempt ${attempt})...`);
             setState(prev => ({
               ...prev,
               retryCount: attempt,

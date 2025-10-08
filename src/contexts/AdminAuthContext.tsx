@@ -100,8 +100,14 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         localStorage.setItem('accessToken', response.data.accessToken);
       }
       
-      // Set admin user
+      // Set admin user and ensure state is updated
       setAdmin(response.data.user as AdminUser);
+      
+      // Debug: Log the admin state
+      console.log('Admin login successful:', response.data.user);
+      
+      // Force a small delay to ensure state propagation
+      await new Promise(resolve => setTimeout(resolve, 50));
       
     } catch (error) {
       console.error('Admin login error:', error);
