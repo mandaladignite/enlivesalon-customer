@@ -50,6 +50,7 @@ export default function MembershipPayment({
         order_id: order.id,
         handler: async (response: any) => {
           try {
+            console.log('Payment response:', {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature

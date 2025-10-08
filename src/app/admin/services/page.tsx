@@ -127,7 +127,7 @@ export default function ServicesPage() {
       
       if (selectedFile) {
         formDataToSend.append('photo', selectedFile)
-
+      }
 
       if (editingService) {
         await serviceAPI.update(editingService._id, formDataToSend)
