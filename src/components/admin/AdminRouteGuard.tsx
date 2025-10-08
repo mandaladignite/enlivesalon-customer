@@ -22,7 +22,7 @@ export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
         // Only redirect if we're not already on the login page
         if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/admin/login')) {
           setShouldRedirect(true);
-          router.push('/auth/admin/login');
+          router.replace('/auth/admin/login');
         }
       } else {
         console.log('AdminRouteGuard - Authenticated as admin, allowing access');

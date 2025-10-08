@@ -32,7 +32,6 @@ interface AdminAuthProviderProps {
 }
 
 export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
-  const { user, loading: globalLoading } = useAuth();
   const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -70,19 +69,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     checkAdminSession();
   }, []);
 
-  // Update admin state based on global auth context
-  useEffect(() => {
-    if (!globalLoading) {
-      if (user && user.role === 'admin') {
-        setAdmin(user as AdminUser);
-        setLoading(false);
-      } else if (!user) {
-        setAdmin(null);
-        setLoading(false);
-      }
-    }
-  }, [user, globalLoading]);
-
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
@@ -107,10 +93,12 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       console.log('Admin login successful:', response.data.user);
       
       // Force a small delay to ensure state propagation
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 100));
       
     } catch (error) {
       console.error('Admin login error:', error);
+      setAdmin(null);
+      localStorage.removeItem('accessToken');
       throw error;
     } finally {
       setLoading(false);

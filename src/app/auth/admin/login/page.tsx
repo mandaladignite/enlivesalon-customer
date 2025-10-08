@@ -16,12 +16,19 @@ export default function AdminLogin() {
   const [success, setSuccess] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
-  const { login } = useAdminAuth();
+  const { login, isAuthenticated, isAdmin } = useAdminAuth();
 
   // Prevent hydration issues
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && isAdmin) {
+      router.replace('/admin');
+    }
+  }, [isAuthenticated, isAdmin, router]);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -43,8 +50,8 @@ export default function AdminLogin() {
       setSuccess(true);
       setError('');
       
-      // Wait a bit longer to ensure all state updates are complete
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Wait for state to propagate and then redirect
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       // Use replace instead of push to avoid back button issues
       router.replace("/admin");
@@ -62,6 +69,18 @@ export default function AdminLogin() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  // If already authenticated, show loading while redirecting
+  if (isAuthenticated && isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to admin dashboard...</p>
+        </div>
       </div>
     );
   }

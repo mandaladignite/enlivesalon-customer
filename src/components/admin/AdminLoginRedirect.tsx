@@ -32,6 +32,7 @@ export default function AdminLoginRedirect({ children }: AdminLoginRedirectProps
         router.replace('/auth/admin/login');
       } else {
         console.log('AdminLoginRedirect - Authenticated as admin, allowing access');
+        setIsRedirecting(false);
       }
     }
   }, [isAuthenticated, isAdmin, loading, router, isRedirecting, admin]);
