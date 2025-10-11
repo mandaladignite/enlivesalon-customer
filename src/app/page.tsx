@@ -11,7 +11,6 @@ const Hero = lazy(() => import("@/components/customer/Home/Hero"));
 const AboutSection = lazy(() => import("@/components/customer/Home/AboutSection"));
 const ServicesSection = lazy(() => import("@/components/customer/Home/ServicesSection"));
 const ProductsShowcase = lazy(() => import("@/components/customer/Home/ProductsSection"));
-const MembershipSection = lazy(() => import("@/components/customer/Home/MembershipSection"));
 const Testimonials = lazy(() => import("@/components/customer/Home/Testimonials"));
 const AppointmentForm = lazy(() => import("@/components/customer/Home/AppointmentForm"));
 const Footer = lazy(() => import("@/components/customer/UI/Footer"));
@@ -67,17 +66,9 @@ export default function Home() {
         </section>
       </LazyWrapper>
 
-      {/* Membership Section - Lazy load with delay */}
-      <LazyWrapper delay={0.4}>
-        <section>
-          <Suspense fallback={<SectionFallback />}>
-            <MembershipSection />
-          </Suspense>
-        </section>
-      </LazyWrapper>
 
       {/* Testimonials Section - Lazy load with delay */}
-      <LazyWrapper delay={0.45}>
+      <LazyWrapper delay={0.4}>
         <section>
           <Suspense fallback={<SectionFallback />}>
             <Testimonials />
@@ -86,7 +77,7 @@ export default function Home() {
       </LazyWrapper>
 
       {/* Appointment Form - Lazy load with delay */}
-      <LazyWrapper delay={0.5}>
+      <LazyWrapper delay={0.45}>
         <section>
           <Suspense fallback={<SectionFallback />}>
             <AppointmentForm />
@@ -95,7 +86,7 @@ export default function Home() {
       </LazyWrapper>
 
       {/* Footer - Lazy load with delay */}
-      <LazyWrapper delay={0.6}>
+      <LazyWrapper delay={0.5}>
         <section>
           <Suspense fallback={<SectionFallback height="min-h-[300px]" />}>
             <Footer />
