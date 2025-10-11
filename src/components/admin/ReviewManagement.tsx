@@ -55,7 +55,7 @@ interface ReviewFormData {
 }
 
 export default function ReviewManagement() {
-  const { token } = useAdminAuth()
+  const { isAuthenticated } = useAdminAuth()
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -103,7 +103,7 @@ export default function ReviewManagement() {
 
   useEffect(() => {
     fetchReviews()
-  }, [searchTerm, statusFilter, featuredFilter, token])
+  }, [searchTerm, statusFilter, featuredFilter, isAuthenticated])
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
