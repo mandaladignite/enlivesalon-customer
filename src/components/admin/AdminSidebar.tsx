@@ -18,6 +18,7 @@ import {
   Image as ImageIcon,
   MessageSquare,
   Package,
+  Star,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -29,6 +30,7 @@ export default function AdminSidebar() {
     { name: 'Dashboard', href: '/admin', icon: <LayoutDashboard size={18} /> },
     { name: 'Bookings', href: '/admin/bookings', icon: <Utensils size={18} /> },
     { name: 'Enquiries', href: '/admin/enquiries', icon: <MessageSquare size={18} /> },
+    { name: 'Reviews', href: '/admin/reviews', icon: <Star size={18} /> },
     { name: 'Stylists', href: '/admin/stylists', icon: <Scissors size={18} /> },
     { name: 'Services', href: '/admin/services', icon: <Sparkles size={18} /> },
     { name: 'Gallery', href: '/admin/gallery', icon: <ImageIcon size={18} /> },

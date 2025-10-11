@@ -903,6 +903,63 @@ export const addressAPI = {
     }),
 };
 
+// Review APIs
+export const reviewAPI = {
+  getAll: (params?: any) => {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return apiRequest(`/reviews${queryString}`);
+  },
+  
+  getById: (id: string) =>
+    apiRequest(`/reviews/${id}`),
+  
+  getFeatured: (params?: any) => {
+    const queryString = params ? `?${new URLSearchParams({ ...params, isFeatured: 'true' }).toString()}` : '?isFeatured=true';
+    return apiRequest(`/reviews${queryString}`);
+  },
+  
+  getActive: (params?: any) => {
+    const queryString = params ? `?${new URLSearchParams({ ...params, isActive: 'true' }).toString()}` : '?isActive=true';
+    return apiRequest(`/reviews${queryString}`);
+  },
+  
+  // Admin functions
+  create: (reviewData: FormData | any) => {
+    const isFormData = reviewData instanceof FormData;
+    return apiRequest('/reviews', {
+      method: 'POST',
+      body: isFormData ? reviewData : JSON.stringify(reviewData),
+      headers: isFormData ? {} : { 'Content-Type': 'application/json' },
+    });
+  },
+  
+  update: (id: string, reviewData: FormData | any) => {
+    const isFormData = reviewData instanceof FormData;
+    return apiRequest(`/reviews/${id}`, {
+      method: 'PUT',
+      body: isFormData ? reviewData : JSON.stringify(reviewData),
+      headers: isFormData ? {} : { 'Content-Type': 'application/json' },
+    });
+  },
+  
+  delete: (id: string) =>
+    apiRequest(`/reviews/${id}`, { method: 'DELETE' }),
+  
+  toggleStatus: (id: string) =>
+    apiRequest(`/reviews/${id}/toggle-status`, { method: 'PATCH' }),
+  
+  toggleFeatured: (id: string) =>
+    apiRequest(`/reviews/${id}/toggle-featured`, { method: 'PATCH' }),
+  
+  getAllAdmin: (params?: any) => {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return apiRequest(`/reviews/admin/dashboard${queryString}`);
+  },
+  
+  getStats: () =>
+    apiRequest('/reviews/admin/dashboard'),
+};
+
 // WhatsApp APIs
 export const whatsappAPI = {
   sendMessage: (messageData: any) =>
