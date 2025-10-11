@@ -25,7 +25,7 @@ export default function Footer() {
           </p>
           <div className="flex space-x-4">
             <a
-              href="https://instagram.com/enlivesalon"
+              href="https://www.instagram.com/enlive_salons?igsh=MWE2dXo4cXNraHZsdQ=="
               className="p-2 bg-gray-800 hover:bg-yellow-500 transition rounded-full"
               aria-label="Instagram"
             >
@@ -149,13 +149,12 @@ export default function Footer() {
             </div>
             <div className="flex items-center">
               <Phone className="w-4 h-4 text-yellow-500 mr-2 flex-shrink-0" />
-              <a href="tel:+919637733733" className="text-sm hover:text-yellow-500 transition-colors">+91 9637733733</a>
+              <a href="tel:+919637733733" className="text-sm hover:text-yellow-500 transition-colors">+91 96377 33733</a>
             </div>
             <div className="flex items-start">
               <Clock className="w-4 h-4 mt-1 text-yellow-500 mr-2 flex-shrink-0" />
               <div>
-                <p className="text-sm">Mon-Sat: 10:00 AM - 8:00 PM</p>
-                <p className="text-sm">Sunday: Closed</p>
+                <p className="text-sm">Everyday: 10:00 AM - 10:00 PM</p>
               </div>
             </div>
           </div>

@@ -333,7 +333,7 @@ export default function PrivacyPolicy() {
               If you have any questions or concerns about this Privacy Policy or our data practices, please contact us:
             </p>
             <ul className="space-y-2 text-gray-600">
-              <li>Phone: +91 9637733733</li>
+              <li>Phone: +91 96377 33733</li>
               <li>Email: enlivesalon@gmail.com</li>
               <li>Data Protection Officer: enlivesalon@gmail.com</li>
               <li>Address: Viman Nagar, Pune, Maharashtra</li>

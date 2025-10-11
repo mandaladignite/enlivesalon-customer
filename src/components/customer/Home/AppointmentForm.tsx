@@ -29,7 +29,7 @@ export default function AppointmentInfo() {
           <div className="p-6 bg-white shadow-md rounded-xl">
             <Phone className="mx-auto h-10 w-10 text-yellow-600 mb-3" />
             <h3 className="font-semibold text-lg">Call Us</h3>
-            <p className="text-gray-600 mt-2">+91 946 889 3355</p>
+            <p className="text-gray-600 mt-2">+91 96377 33733</p>
           </div>
 
           <div className="p-6 bg-white shadow-md rounded-xl">
@@ -41,7 +41,7 @@ export default function AppointmentInfo() {
           <div className="p-6 bg-white shadow-md rounded-xl">
             <Clock className="mx-auto h-10 w-10 text-yellow-600 mb-3" />
             <h3 className="font-semibold text-lg">Working Hours</h3>
-            <p className="text-gray-600 mt-2">Mon – Sun: 9AM – 9PM</p>
+            <p className="text-gray-600 mt-2">Everyday: 10AM – 10PM</p>
           </div>
         </motion.div>
 

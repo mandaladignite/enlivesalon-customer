@@ -93,7 +93,7 @@ export default function ContactPage() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Phone</h3>
                 <p className="text-gray-600 mb-3">Call us during business hours</p>
                 <a href="tel:+919637733733" className="text-blue-600 font-medium hover:text-blue-800 transition-colors">
-                  +91 9637733733
+                  +91 96377 33733
                 </a>
               </div>
 
@@ -117,7 +117,7 @@ export default function ContactPage() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">WhatsApp</h3>
                 <p className="text-gray-600 mb-3">Chat with us instantly</p>
                 <a href="https://wa.me/919637733733" className="text-green-600 font-medium hover:text-green-800 transition-colors">
-                  +91 9637733733
+                  +91 96377 33733
                 </a>
               </div>
 
@@ -141,14 +141,10 @@ export default function ContactPage() {
                 <Clock className="h-6 w-6 text-gold mr-2" />
                 <h3 className="text-xl font-semibold text-gray-900">Business Hours</h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
+              <div className="grid grid-cols-1 gap-4 text-center">
                 <div>
-                  <p className="font-medium text-gray-900">Monday - Friday</p>
-                  <p className="text-gray-600">9:00 AM - 7:00 PM</p>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">Saturday - Sunday</p>
-                  <p className="text-gray-600">10:00 AM - 6:00 PM</p>
+                  <p className="font-medium text-gray-900">Everyday</p>
+                  <p className="text-gray-600">10:00 AM - 10:00 PM</p>
                 </div>
               </div>
             </div>

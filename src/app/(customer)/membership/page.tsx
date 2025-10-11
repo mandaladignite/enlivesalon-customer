@@ -31,6 +31,7 @@ import { packageAPI } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 // import { useMembershipActions } from "@/hooks/useMembership";
 import MembershipPayment from "@/components/payment/MembershipPayment";
+import ThankYouDialog from "@/components/customer/ThankYouDialog";
 
 interface Package {
   _id: string;
@@ -63,7 +64,9 @@ export default function Membership() {
   const [error, setError] = useState("");
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
+  const [showThankYou, setShowThankYou] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
+  const [purchasedMembership, setPurchasedMembership] = useState<Package | null>(null);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   // Fetch packages from backend
@@ -148,9 +151,8 @@ export default function Membership() {
       setPurchaseSuccess(true);
       setShowPayment(false);
       setSelectedPackage(null);
-      alert('Membership purchased successfully!');
-      // Refresh the page or redirect to my memberships
-      window.location.href = '/my-memberships';
+      setPurchasedMembership(membership);
+      setShowThankYou(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to purchase membership');
     }
@@ -165,6 +167,11 @@ export default function Membership() {
   const handleClosePayment = () => {
     setShowPayment(false);
     setSelectedPackage(null);
+  };
+
+  const handleCloseThankYou = () => {
+    setShowThankYou(false);
+    setPurchasedMembership(null);
   };
 
   const getCardGradient = (isPopular: boolean, index: number) => {
@@ -241,25 +248,6 @@ export default function Membership() {
               <span className="text-purple-600 font-semibold"> save up to 40%</span> on all services.
             </p>
 
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              viewport={{ once: true }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12"
-            >
-              {[
-                { number: "500+", label: "Happy Members" },
-                { number: "40%", label: "Average Savings" },
-                { number: "24/7", label: "Premium Support" }
-              ].map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-amber-600 mb-2">{stat.number}</div>
-                  <div className="text-gray-600 font-medium">{stat.label}</div>
-                </div>
-              ))}
-            </motion.div>
           </motion.div>
         </div>
       </div>
@@ -291,16 +279,16 @@ export default function Membership() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="group relative"
+                className="group relative h-full"
               >
-                <div className={`relative bg-gradient-to-br ${benefit.color} p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105 border border-white/50`}>
+                <div className={`relative bg-gradient-to-br ${benefit.color} p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105 border border-white/50 h-full flex flex-col`}>
                   <div className={`w-16 h-16 ${benefit.iconBg} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                     {benefit.icon}
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-amber-600 transition-colors duration-300">
                     {benefit.title}
                   </h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed flex-grow">
                     {benefit.description}
                   </p>
                   
@@ -355,7 +343,7 @@ export default function Membership() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="relative group"
+                  className="relative group h-full"
                   onMouseEnter={() => setHoveredCard(pkg._id)}
                   onMouseLeave={() => setHoveredCard(null)}
                 >
@@ -375,19 +363,19 @@ export default function Membership() {
                     </motion.div>
                   )}
 
-                  <div className={`relative bg-gradient-to-br ${getCardGradient(pkg.isPopular, index)} rounded-3xl overflow-hidden border-2 ${getBorderColor(pkg.isPopular)} shadow-xl hover:shadow-2xl transition-all duration-500 group-hover:scale-105`}>
+                  <div className={`relative bg-gradient-to-br ${getCardGradient(pkg.isPopular, index)} rounded-3xl overflow-hidden border-2 ${getBorderColor(pkg.isPopular)} shadow-xl hover:shadow-2xl transition-all duration-500 group-hover:scale-105 h-full flex flex-col`}>
                     {/* Background Pattern */}
                     <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22%23f59e0b%22%20fill-opacity%3D%220.03%22%3E%3Cpath%20d%3D%22M20%2020c0-5.5-4.5-10-10-10s-10%204.5-10%2010%204.5%2010%2010%2010%2010-4.5%2010-10zm10%200c0-5.5-4.5-10-10-10s-10%204.5-10%2010%204.5%2010%2010%2010%2010-4.5%2010-10z%22/%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
                     
-                    <div className="relative p-8">
+                    <div className="relative p-8 flex flex-col h-full">
                       {/* Header */}
                       <div className="text-center mb-8">
                         <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/40 shadow-lg">
-                          <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
-                            <Crown className="w-10 h-10 text-white" />
+                          <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+                            <Crown className="w-8 h-8 text-white" />
                           </div>
-                          <h3 className="text-3xl font-bold text-gray-900 mb-3">{pkg.name}</h3>
-                          <p className="text-gray-700 leading-relaxed text-lg font-medium">{pkg.description}</p>
+                          <h3 className="text-2xl font-bold text-gray-900 mb-3">{pkg.name}</h3>
+                          <p className="text-gray-700 leading-relaxed text-base font-medium">{pkg.description}</p>
                         </div>
                       </div>
 
@@ -395,28 +383,28 @@ export default function Membership() {
                       <div className="text-center mb-8">
                         <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/40 shadow-lg">
                           <div className="flex items-baseline justify-center mb-3">
-                            <span className="text-6xl font-bold text-gray-900">₹{pkg.discountedPrice}</span>
+                            <span className="text-4xl font-bold text-gray-900">₹{pkg.discountedPrice}</span>
                             {pkg.discountedPrice < pkg.price && (
                               <>
-                                <span className="text-3xl text-gray-500 line-through ml-4">₹{pkg.price}</span>
+                                <span className="text-2xl text-gray-500 line-through ml-4">₹{pkg.price}</span>
                               </>
                             )}
                           </div>
                           
                           {pkg.discountedPrice < pkg.price && (
-                            <div className="flex items-center justify-center gap-3 mb-3">
-                              <span className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-sm font-bold shadow-lg">
+                            <div className="flex items-center justify-center gap-2 mb-3">
+                              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-xs font-bold shadow-lg">
                                 {pkg.discountPercentage}% OFF
                               </span>
-                              <span className="px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-white rounded-full text-sm font-bold shadow-lg">
+                              <span className="px-3 py-1 bg-gradient-to-r from-amber-500 to-yellow-500 text-white rounded-full text-xs font-bold shadow-lg">
                                 Save ₹{pkg.price - pkg.discountedPrice}
                               </span>
                             </div>
                           )}
                           
                           <div className="flex items-center justify-center gap-2 text-gray-600 font-semibold">
-                            <Calendar className="w-5 h-5 text-amber-600" />
-                            <span>{pkg.formattedDuration}</span>
+                            <Calendar className="w-4 h-4 text-amber-600" />
+                            <span className="text-sm">{pkg.formattedDuration}</span>
                           </div>
                         </div>
                       </div>
@@ -424,36 +412,36 @@ export default function Membership() {
                       {/* Membership Details */}
                       <div className="mb-8">
                         <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-white/30">
-                          <h4 className="text-lg font-bold text-gray-900 mb-6 text-center flex items-center justify-center gap-2">
-                            <Award className="w-5 h-5 text-amber-600" />
+                          <h4 className="text-base font-bold text-gray-900 mb-4 text-center flex items-center justify-center gap-2">
+                            <Award className="w-4 h-4 text-amber-600" />
                             Membership Details
                           </h4>
                           
                           {/* Key Stats */}
-                          <div className="grid grid-cols-2 gap-4 mb-6">
-                            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-4 text-center">
-                              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                                <Calendar className="w-5 h-5 text-white" />
+                          <div className="grid grid-cols-2 gap-3 mb-4">
+                            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg p-3 text-center">
+                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <Calendar className="w-4 h-4 text-white" />
                               </div>
-                              <div className="text-2xl font-bold text-gray-900">{pkg.duration}</div>
-                              <div className="text-sm text-gray-600 capitalize">{pkg.durationUnit}</div>
+                              <div className="text-lg font-bold text-gray-900">{pkg.duration}</div>
+                              <div className="text-xs text-gray-600 capitalize">{pkg.durationUnit}</div>
                             </div>
                             
-                            <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-4 text-center">
-                              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                                <Users className="w-5 h-5 text-white" />
+                            <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-lg p-3 text-center">
+                              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-violet-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <Users className="w-4 h-4 text-white" />
                               </div>
-                              <div className="text-2xl font-bold text-gray-900">
+                              <div className="text-lg font-bold text-gray-900">
                                 {pkg.maxAppointments ? pkg.maxAppointments : '∞'}
                               </div>
-                              <div className="text-sm text-gray-600">Appointments</div>
+                              <div className="text-xs text-gray-600">Appointments</div>
                             </div>
                           </div>
 
                           {/* Benefits */}
-                          <div className="space-y-3">
-                            <h5 className="text-md font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                              <Gift className="w-4 h-4 text-amber-600" />
+                          <div className="space-y-2 flex-grow">
+                            <h5 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                              <Gift className="w-3 h-3 text-amber-600" />
                               What's Included:
                             </h5>
                             {pkg.benefits.map((benefit, benefitIndex) => (
@@ -465,12 +453,12 @@ export default function Membership() {
                                 viewport={{ once: true }}
                                 className="group"
                               >
-                                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-white/60 transition-all duration-300">
-                                  <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300">
-                                    <Check className="w-3 h-3 text-white font-bold" />
+                                <div className="flex items-start gap-2 p-2 rounded-lg hover:bg-white/60 transition-all duration-300">
+                                  <div className="w-5 h-5 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300">
+                                    <Check className="w-2.5 h-2.5 text-white font-bold" />
                                   </div>
                                   <div className="flex-1">
-                                    <p className="text-gray-800 leading-relaxed font-medium text-sm group-hover:text-gray-900 transition-colors duration-300">
+                                    <p className="text-gray-800 leading-relaxed font-medium text-xs group-hover:text-gray-900 transition-colors duration-300">
                                       {benefit}
                                     </p>
                                   </div>
@@ -487,11 +475,11 @@ export default function Membership() {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handleJoinNow(pkg)}
                         disabled={false}
-                        className={`w-full py-4 px-6 rounded-2xl font-bold text-lg transition-all duration-300 ${getButtonStyle(pkg.isPopular)} disabled:opacity-50 disabled:cursor-not-allowed`}
+                        className={`w-full py-3 px-6 rounded-2xl font-bold text-base transition-all duration-300 ${getButtonStyle(pkg.isPopular)} disabled:opacity-50 disabled:cursor-not-allowed mt-auto`}
                       >
                         <div className="flex items-center justify-center gap-2">
                           Join Now
-                          <ArrowRight className="w-5 h-5" />
+                          <ArrowRight className="w-4 h-4" />
                         </div>
                       </motion.button>
 
@@ -701,6 +689,15 @@ export default function Membership() {
           onSuccess={handlePaymentSuccess}
           onError={handlePaymentError}
           onClose={handleClosePayment}
+        />
+      )}
+
+      {/* Thank You Dialog */}
+      {showThankYou && purchasedMembership && (
+        <ThankYouDialog
+          isOpen={showThankYou}
+          onClose={handleCloseThankYou}
+          membership={purchasedMembership}
         />
       )}
     </section>

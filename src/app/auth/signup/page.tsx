@@ -108,7 +108,7 @@ export default function SignupPage() {
                 Full Name
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                   <User className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -119,7 +119,7 @@ export default function SignupPage() {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className="form-input pl-10"
+                  className="form-input-with-icon pl-14"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -131,7 +131,7 @@ export default function SignupPage() {
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -142,7 +142,7 @@ export default function SignupPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="form-input pl-10"
+                  className="form-input-with-icon pl-14"
                   placeholder="Enter your email"
                 />
               </div>
@@ -154,7 +154,7 @@ export default function SignupPage() {
                 Phone Number (Optional)
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                   <Phone className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -164,7 +164,7 @@ export default function SignupPage() {
                   autoComplete="tel"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="form-input pl-10"
+                  className="form-input-with-icon pl-14"
                   placeholder="Enter your phone number"
                 />
               </div>
@@ -177,7 +177,7 @@ export default function SignupPage() {
                 Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -188,12 +188,12 @@ export default function SignupPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="form-input pl-10 pr-10"
+                  className="form-input-with-icon pl-14 pr-12"
                   placeholder="Create a password"
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center z-10"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -211,7 +211,7 @@ export default function SignupPage() {
                 Confirm Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -222,12 +222,12 @@ export default function SignupPage() {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="form-input pl-10 pr-10"
+                  className="form-input-with-icon pl-14 pr-12"
                   placeholder="Confirm your password"
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center z-10"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   {showConfirmPassword ? (

@@ -381,27 +381,6 @@ export default function HairServices() {
         </div>
       </LazyWrapper>
 
-      {/* Membership Banner */}
-      <div className="bg-yellow-50 py-12 mb-16">
-        <div className="container mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">Enlive Membership</h3>
-            <p className="text-xl text-yellow-700 font-semibold mb-2">20% OFF ON ALL HAIR SERVICES</p>
-            <p className="text-gray-600 max-w-3xl mx-auto mb-6">
-              Yearly membership available for ₹499/- (including GST). Primary member can add 3 members.
-            </p>
-            <button className="bg-gray-900 hover:bg-black text-white px-8 py-3 rounded-lg font-medium transition">
-              Learn More About Membership
-            </button>
-          </motion.div>
-        </div>
-      </div>
 
       {/* CTA Section */}
       <div className="bg-gray-900 text-white py-16">

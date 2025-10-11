@@ -420,6 +420,9 @@ export const appointmentAPI = {
   getAvailableTimeSlots: (stylistId: string, date: string) =>
     apiRequest(`/appointments/time-slots/available?stylistId=${stylistId}&date=${date}`),
   
+  getAvailableDates: (stylistId: string) =>
+    apiRequest(`/appointments/dates/available?stylistId=${stylistId}`),
+  
   // Admin functions
   getAllAdmin: (params?: any) => {
     const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
@@ -439,14 +442,14 @@ export const appointmentAPI = {
   getById: (id: string) =>
     apiRequest(`/appointments/${id}`),
   
-  updateStatus: (id: string, status: string, notes?: string) =>
-    apiRequest(`/appointments/admin/${id}/status`, {
+  updateStatus: (id: string, status: string, reason?: string) =>
+    apiRequest(`/appointments/${id}/status`, {
       method: 'PATCH',
-      body: JSON.stringify({ status, notes }),
+      body: JSON.stringify({ status, reason }),
     }),
   
   getStatsAdmin: () =>
-    apiRequest('/appointments/admin/stats'),
+    apiRequest('/appointments/stats/overview'),
   
   getOverviewStats: (params?: any) => {
     const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';

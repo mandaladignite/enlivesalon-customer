@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { serviceAPI, stylistAPI, appointmentAPI } from '@/lib/api';
-import { Calendar, Clock, User, Scissors, CheckCircle, AlertCircle, MapPin, Star, Phone, Mail, ArrowLeft, ArrowRight, Home, Building2 } from 'lucide-react';
+import { Calendar, Clock, User, Scissors, CheckCircle, AlertCircle, MapPin, Star, Phone, Mail, ArrowLeft, ArrowRight, Home, Building2, Search, Filter, X, SlidersHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -78,8 +78,10 @@ export default function BookPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [stylists, setStylists] = useState<Stylist[]>([]);
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
+  const [availableDates, setAvailableDates] = useState<{date: string, availableSlots: number, dayOfWeek: string}[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [loadingDates, setLoadingDates] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -105,6 +107,26 @@ export default function BookPage() {
 
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
   const [selectedStylist, setSelectedStylist] = useState<Stylist | null>(null);
+  
+  // Search and filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [priceRange, setPriceRange] = useState<{min: number, max: number}>({min: 0, max: 10000});
+  const [durationRange, setDurationRange] = useState<{min: number, max: number}>({min: 0, max: 300});
+  const [showFilters, setShowFilters] = useState(false);
+  const [sortBy, setSortBy] = useState<'name' | 'price' | 'duration'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  
+  // Stylist filter states
+  const [stylistSearchQuery, setStylistSearchQuery] = useState('');
+  const [stylistExperienceFilter, setStylistExperienceFilter] = useState<{min: number, max: number}>({min: 0, max: 20});
+  const [stylistRatingFilter, setStylistRatingFilter] = useState<{min: number, max: number}>({min: 0, max: 5});
+  const [stylistSortBy, setStylistSortBy] = useState<'name' | 'experience' | 'rating'>('name');
+  const [stylistSortOrder, setStylistSortOrder] = useState<'asc' | 'desc'>('asc');
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [servicesPerPage, setServicesPerPage] = useState(12); // Show 12 services per page (3x4 grid)
   
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -148,21 +170,92 @@ export default function BookPage() {
     }
   }, [services, searchParams]);
 
+  // Reset pagination when search or filters change
+  useEffect(() => {
+    resetPagination();
+  }, [searchQuery, selectedCategory, priceRange, durationRange, sortBy, sortOrder, servicesPerPage]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [servicesResponse, stylistsResponse] = await Promise.all([
-        serviceAPI.getAll(),
-        stylistAPI.getAll()
+      
+      // Fetch all services by making multiple requests if needed
+      const fetchAllServices = async () => {
+        try {
+          let allServices: Service[] = [];
+          let page = 1;
+          let hasMore = true;
+          let maxPages = 10; // Safety limit to prevent infinite loops
+          
+          while (hasMore && page <= maxPages) {
+            const response = await serviceAPI.getAll({ 
+              page, 
+              limit: 100, // Use max limit per request
+              isActive: true 
+            });
+            
+            if (response.data?.services && response.data.services.length > 0) {
+              allServices = [...allServices, ...response.data.services];
+              hasMore = response.data.pagination?.hasNext || false;
+              page++;
+            } else {
+              hasMore = false;
+            }
+          }
+          
+          // If we didn't get any services through pagination, try a single request with high limit
+          if (allServices.length === 0) {
+            console.log('No services found through pagination, trying single request...');
+            const fallbackResponse = await serviceAPI.getAll({ 
+              limit: 200, 
+              isActive: true 
+            });
+            if (fallbackResponse.data?.services) {
+              allServices = fallbackResponse.data.services;
+            }
+          }
+          
+          return allServices;
+        } catch (error) {
+          console.error('Error in fetchAllServices:', error);
+          // Fallback to single request
+          const fallbackResponse = await serviceAPI.getAll({ 
+            limit: 200, 
+            isActive: true 
+          });
+          return fallbackResponse.data?.services || [];
+        }
+      };
+      
+      const [allServices, stylistsResponse] = await Promise.all([
+        fetchAllServices(),
+        stylistAPI.getAll({ limit: 100, isActive: true })
       ]);
       
-      setServices(servicesResponse.data?.services || servicesResponse.data || []);
+      setServices(allServices);
       setStylists(stylistsResponse.data?.stylists || stylistsResponse.data || []);
+      
+      // Debug logging
+      console.log(`Loaded ${allServices.length} services and ${stylistsResponse.data?.stylists?.length || 0} stylists`);
     } catch (error: any) {
       setError(error.message || 'Failed to fetch data');
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAvailableDates = async (stylistId: string) => {
+    try {
+      setLoadingDates(true);
+      const response = await appointmentAPI.getAvailableDates(stylistId);
+      const dates = response.data?.availableDates || [];
+      setAvailableDates(dates);
+    } catch (error: any) {
+      console.error('Error fetching available dates:', error);
+      setAvailableDates([]);
+    } finally {
+      setLoadingDates(false);
     }
   };
 
@@ -228,12 +321,17 @@ export default function BookPage() {
     // Reset selected stylist when location changes
     setSelectedStylist(null);
     setBookingData(prev => ({ ...prev, stylistId: '' }));
+    // Reset available dates and slots
+    setAvailableDates([]);
+    setAvailableSlots([]);
     setCurrentStep(3);
   };
 
   const handleStylistSelect = (stylist: Stylist) => {
     setSelectedStylist(stylist);
     setBookingData(prev => ({ ...prev, stylistId: stylist._id }));
+    // Fetch available dates for the selected stylist
+    fetchAvailableDates(stylist._id);
     setCurrentStep(4);
   };
 
@@ -320,6 +418,221 @@ export default function BookPage() {
 
   const calculateTotalDiscount = () => {
     return calculateOriginalTotal() - calculateTotalPrice();
+  };
+
+  // Get unique categories from services
+  const getCategories = () => {
+    const categories = services.map(service => service.category);
+    return ['all', ...Array.from(new Set(categories))];
+  };
+
+  // YouTube-style search functionality
+  const searchServices = (query: string, services: Service[]) => {
+    if (!query.trim()) return services;
+    
+    const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 0);
+    
+    return services.filter(service => {
+      const searchableText = `${service.name} ${service.description} ${service.category}`.toLowerCase();
+      
+      // Check if all search terms are found in the service
+      return searchTerms.every(term => searchableText.includes(term));
+    });
+  };
+
+  // Filter services based on selected filters
+  const filterServices = (services: Service[]) => {
+    let filtered = services;
+
+    // Category filter
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(service => service.category === selectedCategory);
+    }
+
+    // Price range filter
+    filtered = filtered.filter(service => {
+      const price = calculateDiscountedPrice(service);
+      return price >= priceRange.min && price <= priceRange.max;
+    });
+
+    // Duration range filter
+    filtered = filtered.filter(service => 
+      service.duration >= durationRange.min && service.duration <= durationRange.max
+    );
+
+    return filtered;
+  };
+
+  // Sort services
+  const sortServices = (services: Service[]) => {
+    return [...services].sort((a, b) => {
+      let aValue: any, bValue: any;
+      
+      switch (sortBy) {
+        case 'price':
+          aValue = calculateDiscountedPrice(a);
+          bValue = calculateDiscountedPrice(b);
+          break;
+        case 'duration':
+          aValue = a.duration;
+          bValue = b.duration;
+          break;
+        default:
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+  };
+
+  // Get processed services (search + filter + sort)
+  const getProcessedServices = () => {
+    const searched = searchServices(searchQuery, services);
+    const filtered = filterServices(searched);
+    return sortServices(filtered);
+  };
+
+  // Get paginated services
+  const getPaginatedServices = () => {
+    const processedServices = getProcessedServices();
+    const startIndex = (currentPage - 1) * servicesPerPage;
+    const endIndex = startIndex + servicesPerPage;
+    return processedServices.slice(startIndex, endIndex);
+  };
+
+  // Get pagination info
+  const getPaginationInfo = () => {
+    const processedServices = getProcessedServices();
+    const totalPages = Math.ceil(processedServices.length / servicesPerPage);
+    const startIndex = (currentPage - 1) * servicesPerPage + 1;
+    const endIndex = Math.min(currentPage * servicesPerPage, processedServices.length);
+    
+    return {
+      totalServices: processedServices.length,
+      totalPages,
+      startIndex,
+      endIndex,
+      hasNext: currentPage < totalPages,
+      hasPrev: currentPage > 1
+    };
+  };
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of services section
+    const servicesSection = document.getElementById('services-section');
+    if (servicesSection) {
+      servicesSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Reset pagination when filters change
+  const resetPagination = () => {
+    setCurrentPage(1);
+  };
+
+  // Remove service from selection
+  const removeService = (serviceId: string) => {
+    const updatedServices = selectedServices.filter(s => s._id !== serviceId);
+    setSelectedServices(updatedServices);
+    setBookingData(prev => ({ 
+      ...prev, 
+      serviceIds: updatedServices.map(s => s._id) 
+    }));
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('all');
+    setPriceRange({min: 0, max: 10000});
+    setDurationRange({min: 0, max: 300});
+    setSortBy('name');
+    setSortOrder('asc');
+    resetPagination();
+  };
+
+  // Stylist search functionality
+  const searchStylists = (query: string, stylists: Stylist[]) => {
+    if (!query.trim()) return stylists;
+    
+    const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 0);
+    
+    return stylists.filter(stylist => {
+      const searchableText = `${stylist.name} ${stylist.specialties?.join(' ')}`.toLowerCase();
+      
+      // Check if all search terms are found in the stylist
+      return searchTerms.every(term => searchableText.includes(term));
+    });
+  };
+
+  // Filter stylists based on selected filters
+  const filterStylists = (stylists: Stylist[]) => {
+    let filtered = stylists;
+
+    // Experience filter
+    filtered = filtered.filter(stylist => 
+      stylist.experience >= stylistExperienceFilter.min && 
+      stylist.experience <= stylistExperienceFilter.max
+    );
+
+    // Rating filter
+    filtered = filtered.filter(stylist => 
+      stylist.rating >= stylistRatingFilter.min && 
+      stylist.rating <= stylistRatingFilter.max
+    );
+
+    return filtered;
+  };
+
+  // Sort stylists
+  const sortStylists = (stylists: Stylist[]) => {
+    return [...stylists].sort((a, b) => {
+      let aValue: any, bValue: any;
+      
+      switch (stylistSortBy) {
+        case 'experience':
+          aValue = a.experience;
+          bValue = b.experience;
+          break;
+        case 'rating':
+          aValue = a.rating;
+          bValue = b.rating;
+          break;
+        default:
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+      }
+
+      if (stylistSortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+  };
+
+  // Get processed stylists (search + filter + sort)
+  const getProcessedStylists = () => {
+    const availableStylists = getAvailableStylists();
+    const searched = searchStylists(stylistSearchQuery, availableStylists);
+    const filtered = filterStylists(searched);
+    return sortStylists(filtered);
+  };
+
+  // Clear stylist filters
+  const clearStylistFilters = () => {
+    setStylistSearchQuery('');
+    setStylistExperienceFilter({min: 0, max: 20});
+    setStylistRatingFilter({min: 0, max: 5});
+    setStylistSortBy('name');
+    setStylistSortOrder('asc');
   };
 
   const handleSubmit = async () => {
@@ -561,17 +874,221 @@ export default function BookPage() {
                 <div className="text-center mb-6">
                   <h2 className="text-2xl font-semibold text-gray-900 mb-2">Choose Services</h2>
                   <p className="text-gray-600">You can select multiple services for your appointment</p>
-                  {selectedServices.length > 0 && (
-                    <div className="mt-4 p-3 bg-gold/10 rounded-lg">
-                      <p className="text-sm text-gold font-medium">
-                        {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''} selected
-                      </p>
+                  {services.length > 0 && (
+                    <p className="text-sm text-gray-500 mt-2">
+                      Showing {getPaginationInfo().startIndex}-{getPaginationInfo().endIndex} of {getPaginationInfo().totalServices} services
+                    </p>
+                  )}
+                </div>
+
+                {/* Selected Services Panel */}
+                {selectedServices.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gold/10 border border-gold/20 rounded-lg p-4 mb-6"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-gold">
+                        Selected Services ({selectedServices.length})
+                      </h3>
                       {calculateTotalDiscount() > 0 && (
-                        <p className="text-sm text-red-600 font-medium mt-1">
-                          🎉 You're saving ₹{calculateTotalDiscount()} with current discounts!
-                        </p>
+                        <span className="text-sm text-red-600 font-medium">
+                          🎉 Saving ₹{calculateTotalDiscount()}!
+                        </span>
                       )}
                     </div>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedServices.map((service) => (
+                        <div
+                          key={service._id}
+                          className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-gold/30"
+                        >
+                          <span className="text-sm font-medium text-gray-900">{service.name}</span>
+                          <span className="text-xs text-gray-500">₹{calculateDiscountedPrice(service)}</span>
+                          <button
+                            onClick={() => removeService(service._id)}
+                            className="text-gray-400 hover:text-red-500 transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-gold/20">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Total Duration:</span>
+                        <span className="font-semibold text-gold">
+                          {selectedServices.reduce((total, service) => total + service.duration, 0)} min
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Total Price:</span>
+                        <span className="text-lg font-bold text-gold">₹{calculateTotalPrice()}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Search and Filter Bar */}
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  <div className="flex flex-col lg:flex-row gap-4">
+                    {/* Search Bar */}
+                    <div className="flex-1 relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <input
+                        type="text"
+                        placeholder="Search services... (e.g., 'hair cut', 'facial', 'massage')"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
+                      />
+                      {searchQuery && (
+                        <button
+                          onClick={() => setSearchQuery('')}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Filter Toggle Button */}
+                    <button
+                      onClick={() => setShowFilters(!showFilters)}
+                      className={`flex items-center gap-2 px-4 py-3 rounded-lg border transition-colors ${
+                        showFilters 
+                          ? 'bg-gold text-black border-gold' 
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-gold'
+                      }`}
+                    >
+                      <SlidersHorizontal className="w-5 h-5" />
+                      Filters
+                    </button>
+
+                    {/* Sort Dropdown */}
+                    <select
+                      value={`${sortBy}-${sortOrder}`}
+                      onChange={(e) => {
+                        const [field, order] = e.target.value.split('-');
+                        setSortBy(field as 'name' | 'price' | 'duration');
+                        setSortOrder(order as 'asc' | 'desc');
+                      }}
+                      className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
+                    >
+                      <option value="name-asc">Name A-Z</option>
+                      <option value="name-desc">Name Z-A</option>
+                      <option value="price-asc">Price Low-High</option>
+                      <option value="price-desc">Price High-Low</option>
+                      <option value="duration-asc">Duration Short-Long</option>
+                      <option value="duration-desc">Duration Long-Short</option>
+                    </select>
+                  </div>
+
+                  {/* Advanced Filters */}
+                  {showFilters && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-4 pt-4 border-t border-gray-200"
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Category Filter */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                          <select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
+                          >
+                            {getCategories().map(category => (
+                              <option key={category} value={category}>
+                                {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Price Range */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Price Range: ₹{priceRange.min} - ₹{priceRange.max}
+                          </label>
+                          <div className="space-y-2">
+                            <input
+                              type="range"
+                              min="0"
+                              max="10000"
+                              step="100"
+                              value={priceRange.max}
+                              onChange={(e) => setPriceRange(prev => ({ ...prev, max: parseInt(e.target.value) }))}
+                              className="w-full"
+                            />
+                            <div className="flex gap-2">
+                              <input
+                                type="number"
+                                placeholder="Min"
+                                value={priceRange.min}
+                                onChange={(e) => setPriceRange(prev => ({ ...prev, min: parseInt(e.target.value) || 0 }))}
+                                className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Max"
+                                value={priceRange.max}
+                                onChange={(e) => setPriceRange(prev => ({ ...prev, max: parseInt(e.target.value) || 10000 }))}
+                                className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Duration Range */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Duration: {durationRange.min} - {durationRange.max} min
+                          </label>
+                          <div className="space-y-2">
+                            <input
+                              type="range"
+                              min="0"
+                              max="300"
+                              step="15"
+                              value={durationRange.max}
+                              onChange={(e) => setDurationRange(prev => ({ ...prev, max: parseInt(e.target.value) }))}
+                              className="w-full"
+                            />
+                            <div className="flex gap-2">
+                              <input
+                                type="number"
+                                placeholder="Min"
+                                value={durationRange.min}
+                                onChange={(e) => setDurationRange(prev => ({ ...prev, min: parseInt(e.target.value) || 0 }))}
+                                className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Max"
+                                value={durationRange.max}
+                                onChange={(e) => setDurationRange(prev => ({ ...prev, max: parseInt(e.target.value) || 300 }))}
+                                className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Clear Filters Button */}
+                      <div className="mt-4 flex justify-end">
+                        <button
+                          onClick={clearFilters}
+                          className="text-sm text-gray-600 hover:text-gray-800 underline"
+                        >
+                          Clear all filters
+                        </button>
+                      </div>
+                    </motion.div>
                   )}
                 </div>
 
@@ -583,8 +1100,9 @@ export default function BookPage() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {services.map((service) => {
+                {/* Services Grid */}
+                <div id="services-section" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {getPaginatedServices().map((service) => {
                     const isSelected = selectedServices.some(s => s._id === service._id);
                     return (
                       <motion.div
@@ -612,6 +1130,11 @@ export default function BookPage() {
                           <h3 className="text-lg font-semibold text-gray-900 mb-2">
                             {service.name}
                           </h3>
+                          <p className="text-gray-600 text-sm mb-2">
+                            <span className="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
+                              {service.category}
+                            </span>
+                          </p>
                           <p className="text-gray-600 text-sm mb-4 line-clamp-2">
                             {service.description}
                           </p>
@@ -644,6 +1167,104 @@ export default function BookPage() {
                     );
                   })}
                 </div>
+
+                {/* Pagination Controls */}
+                {getPaginationInfo().totalPages > 1 && (
+                  <div className="flex flex-col items-center mt-8 space-y-4">
+                    {/* Services per page selector */}
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <span>Show:</span>
+                      <select
+                        value={servicesPerPage}
+                        onChange={(e) => {
+                          setServicesPerPage(parseInt(e.target.value));
+                          setCurrentPage(1); // Reset to first page
+                        }}
+                        className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-gold focus:border-transparent"
+                      >
+                        <option value={6}>6 per page</option>
+                        <option value={12}>12 per page</option>
+                        <option value={24}>24 per page</option>
+                        <option value={48}>48 per page</option>
+                      </select>
+                    </div>
+
+                    {/* Pagination info */}
+                    <div className="text-sm text-gray-500">
+                      Page {currentPage} of {getPaginationInfo().totalPages}
+                    </div>
+
+                    {/* Pagination buttons */}
+                    <div className="flex items-center space-x-1 sm:space-x-2">
+                      {/* Previous Button */}
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={!getPaginationInfo().hasPrev}
+                        className="flex items-center px-2 sm:px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <ArrowLeft className="w-4 h-4 sm:mr-1" />
+                        <span className="hidden sm:inline">Previous</span>
+                      </button>
+
+                      {/* Page Numbers */}
+                      <div className="flex items-center space-x-1">
+                        {Array.from({ length: Math.min(5, getPaginationInfo().totalPages) }, (_, i) => {
+                          let pageNum;
+                          if (getPaginationInfo().totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= getPaginationInfo().totalPages - 2) {
+                            pageNum = getPaginationInfo().totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => handlePageChange(pageNum)}
+                              className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                                currentPage === pageNum
+                                  ? 'bg-gold text-black'
+                                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700'
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Next Button */}
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={!getPaginationInfo().hasNext}
+                        className="flex items-center px-2 sm:px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <span className="hidden sm:inline">Next</span>
+                        <ArrowRight className="w-4 h-4 sm:ml-1" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* No Results Message */}
+                {getProcessedServices().length === 0 && (
+                  <div className="text-center py-12">
+                    <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">No services found</h3>
+                    <p className="text-gray-500 mb-4">
+                      Try adjusting your search terms or filters to find what you're looking for.
+                    </p>
+                    <button
+                      onClick={clearFilters}
+                      className="text-gold hover:text-gold-dark font-medium"
+                    >
+                      Clear all filters
+                    </button>
+                  </div>
+                )}
 
               </motion.div>
             )}
@@ -732,6 +1353,138 @@ export default function BookPage() {
                   </div>
                 </div>
 
+                {/* Stylist Search and Filter Bar */}
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  <div className="flex flex-col lg:flex-row gap-4">
+                    {/* Search Bar */}
+                    <div className="flex-1 relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <input
+                        type="text"
+                        placeholder="Search stylists by name or specialties..."
+                        value={stylistSearchQuery}
+                        onChange={(e) => setStylistSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
+                      />
+                      {stylistSearchQuery && (
+                        <button
+                          onClick={() => setStylistSearchQuery('')}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Sort Dropdown */}
+                    <select
+                      value={`${stylistSortBy}-${stylistSortOrder}`}
+                      onChange={(e) => {
+                        const [field, order] = e.target.value.split('-');
+                        setStylistSortBy(field as 'name' | 'experience' | 'rating');
+                        setStylistSortOrder(order as 'asc' | 'desc');
+                      }}
+                      className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
+                    >
+                      <option value="name-asc">Name A-Z</option>
+                      <option value="name-desc">Name Z-A</option>
+                      <option value="experience-desc">Experience High-Low</option>
+                      <option value="experience-asc">Experience Low-High</option>
+                      <option value="rating-desc">Rating High-Low</option>
+                      <option value="rating-asc">Rating Low-High</option>
+                    </select>
+                  </div>
+
+                  {/* Advanced Filters */}
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Experience Range */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Experience: {stylistExperienceFilter.min} - {stylistExperienceFilter.max} years
+                        </label>
+                        <div className="space-y-2">
+                          <input
+                            type="range"
+                            min="0"
+                            max="20"
+                            step="1"
+                            value={stylistExperienceFilter.max}
+                            onChange={(e) => setStylistExperienceFilter(prev => ({ ...prev, max: parseInt(e.target.value) }))}
+                            className="w-full"
+                          />
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              placeholder="Min"
+                              value={stylistExperienceFilter.min}
+                              onChange={(e) => setStylistExperienceFilter(prev => ({ ...prev, min: parseInt(e.target.value) || 0 }))}
+                              className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
+                            />
+                            <input
+                              type="number"
+                              placeholder="Max"
+                              value={stylistExperienceFilter.max}
+                              onChange={(e) => setStylistExperienceFilter(prev => ({ ...prev, max: parseInt(e.target.value) || 20 }))}
+                              className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Rating Range */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Rating: {stylistRatingFilter.min} - {stylistRatingFilter.max} stars
+                        </label>
+                        <div className="space-y-2">
+                          <input
+                            type="range"
+                            min="0"
+                            max="5"
+                            step="0.1"
+                            value={stylistRatingFilter.max}
+                            onChange={(e) => setStylistRatingFilter(prev => ({ ...prev, max: parseFloat(e.target.value) }))}
+                            className="w-full"
+                          />
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              placeholder="Min"
+                              min="0"
+                              max="5"
+                              step="0.1"
+                              value={stylistRatingFilter.min}
+                              onChange={(e) => setStylistRatingFilter(prev => ({ ...prev, min: parseFloat(e.target.value) || 0 }))}
+                              className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
+                            />
+                            <input
+                              type="number"
+                              placeholder="Max"
+                              min="0"
+                              max="5"
+                              step="0.1"
+                              value={stylistRatingFilter.max}
+                              onChange={(e) => setStylistRatingFilter(prev => ({ ...prev, max: parseFloat(e.target.value) || 5 }))}
+                              className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Clear Filters Button */}
+                    <div className="mt-4 flex justify-end">
+                      <button
+                        onClick={clearStylistFilters}
+                        className="text-sm text-gray-600 hover:text-gray-800 underline"
+                      >
+                        Clear all filters
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Validation Error */}
                 {validationErrors.stylist && (
                   <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg flex items-center gap-2">
@@ -740,9 +1493,9 @@ export default function BookPage() {
                   </div>
                 )}
                 
-                {getAvailableStylists().length > 0 ? (
+                {getProcessedStylists().length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {getAvailableStylists().map((stylist) => (
+                    {getProcessedStylists().map((stylist) => (
                       <motion.div
                         key={stylist._id}
                         whileHover={{ scale: 1.02 }}
@@ -781,16 +1534,28 @@ export default function BookPage() {
                 ) : (
                   <div className="text-center py-12">
                     <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">No stylists available</h3>
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">No stylists found</h3>
                     <p className="text-gray-500 mb-4">
-                      No stylists are currently available for {bookingData.location} service.
+                      {getAvailableStylists().length === 0 
+                        ? `No stylists are currently available for ${bookingData.location} service.`
+                        : 'Try adjusting your search terms or filters to find stylists.'
+                      }
                     </p>
-                    <button
-                      onClick={() => setCurrentStep(2)}
-                      className="text-gold hover:text-gold-dark font-medium"
-                    >
-                      ← Change location
-                    </button>
+                    {getAvailableStylists().length === 0 ? (
+                      <button
+                        onClick={() => setCurrentStep(2)}
+                        className="text-gold hover:text-gold-dark font-medium"
+                      >
+                        ← Change location
+                      </button>
+                    ) : (
+                      <button
+                        onClick={clearStylistFilters}
+                        className="text-gold hover:text-gold-dark font-medium"
+                      >
+                        Clear all filters
+                      </button>
+                    )}
                   </div>
                 )}
               </motion.div>
@@ -807,7 +1572,12 @@ export default function BookPage() {
               >
                 <div className="flex items-center gap-4 mb-6">
                   <button
-                    onClick={() => setCurrentStep(3)}
+                    onClick={() => {
+                      setCurrentStep(3);
+                      // Reset date and time selection when going back
+                      setBookingData(prev => ({ ...prev, date: '', timeSlot: '' }));
+                      setAvailableSlots([]);
+                    }}
                     className="text-gold hover:text-gold-dark"
                   >
                     ← Back
@@ -829,14 +1599,46 @@ export default function BookPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Select Date
                     </label>
-                    <input
-                      type="date"
-                      value={bookingData.date}
-                      onChange={(e) => handleDateSelect(e.target.value)}
-                      min={getMinDate()}
-                      max={getMaxDate()}
-                      className="form-input w-full"
-                    />
+                    {loadingDates ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold mx-auto mb-2"></div>
+                        <p className="text-gray-500 text-sm">Loading available dates...</p>
+                      </div>
+                    ) : availableDates.length > 0 ? (
+                      <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                        {availableDates.map((dateInfo, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleDateSelect(dateInfo.date)}
+                            className={`p-3 rounded-lg border text-center transition-colors ${
+                              bookingData.date === dateInfo.date
+                                ? 'border-gold bg-gold/10'
+                                : 'border-gray-300 hover:border-gold hover:bg-gold/5'
+                            }`}
+                          >
+                            <div className="text-sm font-medium">
+                              {new Date(dateInfo.date).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })}
+                            </div>
+                            <div className="text-xs text-gray-500 capitalize">
+                              {dateInfo.dayOfWeek}
+                            </div>
+                            <div className="text-xs text-gold font-medium">
+                              {dateInfo.availableSlots} slots
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Calendar className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                        <p className="text-gray-500 text-sm">
+                          No available dates found for this stylist
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Time Selection */}

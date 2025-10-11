@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Search,
   User,
   ShoppingBag,
   Menu,
@@ -22,8 +21,6 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
   const accountDropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -99,14 +96,6 @@ export default function Navbar() {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/services?search=${encodeURIComponent(searchQuery)}`);
-      setShowSearch(false);
-      setSearchQuery("");
-    }
-  };
 
   const accountMenuItems = [
     { name: "My Profile", href: "/profile", icon: User },
@@ -130,42 +119,6 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Search Bar - Hidden on very small screens */}
-          <div className="relative hidden sm:block">
-            <button
-              onClick={() => setShowSearch(!showSearch)}
-              className={`p-2 rounded-full transition-colors ${
-                isScrolled 
-                  ? "hover:bg-gray-100 text-gray-600" 
-                  : "hover:bg-white/20 text-white"
-              }`}
-            >
-              <Search className="w-5 h-5" />
-            </button>
-            
-            {showSearch && (
-              <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 p-4 z-50">
-                <form onSubmit={handleSearch} className="flex gap-2">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search products, services..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gold focus:border-gold outline-none"
-                    autoFocus
-                  />
-                  <button
-                    type="submit"
-                    className="btn-primary px-4 py-2 text-sm"
-                  >
-                    Search
-                  </button>
-                </form>
-              </div>
-            )}
-          </div>
-
-
           {/* Account Dropdown - Always visible */}
           {user ? (
             <div className="relative" ref={accountDropdownRef}>

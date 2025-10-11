@@ -6,7 +6,7 @@ Disallow: /auth/
 Disallow: /api/
 
 # Host
-Host: http://localhost:3000
+Host: http://localhost:8001
 
 # Sitemaps
-Sitemap: http://localhost:3000/sitemap.xml
+Sitemap: http://localhost:8001/sitemap.xml

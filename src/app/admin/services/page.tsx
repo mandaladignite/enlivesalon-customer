@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { serviceAPI } from '@/lib/api'
-import { Plus, Edit, Trash2, Eye, Clock, DollarSign, Sparkles, MapPin, Home, Upload, Star, Tag, Image as ImageIcon, X, Check, Settings, Users, Percent, Calendar } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, Clock, DollarSign, Sparkles, MapPin, Home, Upload, Star, Tag, Image as ImageIcon, X, Check, Settings, Users, Percent, Calendar, Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Service {
   _id: string
@@ -36,6 +36,20 @@ export default function ServicesPage() {
   const [error, setError] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editingService, setEditingService] = useState<Service | null>(null)
+  
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [priceRangeFilter, setPriceRangeFilter] = useState({ min: 0, max: 10000 })
+  const [durationRangeFilter, setDurationRangeFilter] = useState({ min: 0, max: 300 })
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalServices, setTotalServices] = useState(0)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -87,14 +101,46 @@ export default function ServicesPage() {
 
   useEffect(() => {
     fetchServices()
-  }, [])
+  }, [searchTerm, categoryFilter, statusFilter, priceRangeFilter, durationRangeFilter, currentPage, itemsPerPage])
 
   const fetchServices = async () => {
     try {
       setLoading(true)
-      const response = await serviceAPI.getAll()
+      setError('')
+      
+      // Build query parameters
+      const params: any = {
+        page: currentPage,
+        limit: itemsPerPage
+      }
+      
+      if (searchTerm.trim()) {
+        params.search = searchTerm.trim()
+      }
+      
+      if (categoryFilter !== 'all') {
+        params.category = categoryFilter
+      }
+      
+      if (statusFilter !== 'all') {
+        params.isActive = statusFilter === 'active'
+      }
+      
+      if (priceRangeFilter.min > 0 || priceRangeFilter.max < 10000) {
+        params.minPrice = priceRangeFilter.min
+        params.maxPrice = priceRangeFilter.max
+      }
+      
+      if (durationRangeFilter.min > 0 || durationRangeFilter.max < 300) {
+        params.minDuration = durationRangeFilter.min
+        params.maxDuration = durationRangeFilter.max
+      }
+      
+      const response = await serviceAPI.getAllAdmin(params)
       if (response.success) {
         setServices(response.data.services || [])
+        setTotalServices(response.data.pagination?.totalServices || 0)
+        setTotalPages(response.data.pagination?.totalPages || 1)
       } else {
         setError('Failed to fetch services')
       }
@@ -103,6 +149,36 @@ export default function ServicesPage() {
       console.error('Error:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Search and filter functions
+  const handleSearch = (value: string) => {
+    setSearchTerm(value)
+    setCurrentPage(1) // Reset to first page when searching
+  }
+
+  const clearFilters = () => {
+    setSearchTerm('')
+    setCategoryFilter('all')
+    setStatusFilter('all')
+    setPriceRangeFilter({ min: 0, max: 10000 })
+    setDurationRangeFilter({ min: 0, max: 300 })
+    setCurrentPage(1)
+  }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+  }
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage)
+    setCurrentPage(1) // Reset to first page when changing items per page
+  }
+
+  const handleGoToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
     }
   }
 
@@ -381,6 +457,154 @@ export default function ServicesPage() {
           <Plus size={20} />
           Add Service
         </button>
+      </div>
+
+      {/* Search and Filter Section */}
+      <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-6">
+        <div className="flex flex-col gap-4">
+          {/* Search and Basic Filters */}
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Search bar */}
+            <div className="relative flex-1">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search by service name, description, or tags..."
+                value={searchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="block w-full pl-10 pr-3 py-2 rounded-lg bg-gray-50 text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37]"
+              />
+            </div>
+
+            {/* Category filter */}
+            <div className="relative">
+              <select 
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="appearance-none bg-gray-50 border border-gray-300 text-gray-900 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37]"
+              >
+                <option value="all">All Categories</option>
+                <option value="hair">Hair Services</option>
+                <option value="nail">Nail Services</option>
+                <option value="body">Body Services</option>
+                <option value="skin">Skin Services</option>
+              </select>
+            </div>
+
+            {/* Status filter */}
+            <div className="relative">
+              <select 
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="appearance-none bg-gray-50 border border-gray-300 text-gray-900 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37]"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+
+            {/* Advanced Filters Toggle */}
+            <button
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                showAdvancedFilters 
+                  ? 'bg-[#D4AF37] text-white border-[#D4AF37]' 
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-[#D4AF37]'
+              }`}
+            >
+              <Filter className="w-5 h-5" />
+              Filters
+            </button>
+          </div>
+
+          {/* Advanced Filters */}
+          {showAdvancedFilters && (
+            <div className="pt-4 border-t border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Price Range */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Price Range: ₹{priceRangeFilter.min} - ₹{priceRangeFilter.max}
+                  </label>
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="10000"
+                      step="100"
+                      value={priceRangeFilter.max}
+                      onChange={(e) => setPriceRangeFilter(prev => ({ ...prev, max: parseInt(e.target.value) }))}
+                      className="w-full"
+                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        placeholder="Min"
+                        value={priceRangeFilter.min}
+                        onChange={(e) => setPriceRangeFilter(prev => ({ ...prev, min: parseInt(e.target.value) || 0 }))}
+                        className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Max"
+                        value={priceRangeFilter.max}
+                        onChange={(e) => setPriceRangeFilter(prev => ({ ...prev, max: parseInt(e.target.value) || 10000 }))}
+                        className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Duration Range */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Duration: {durationRangeFilter.min} - {durationRangeFilter.max} min
+                  </label>
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="300"
+                      step="15"
+                      value={durationRangeFilter.max}
+                      onChange={(e) => setDurationRangeFilter(prev => ({ ...prev, max: parseInt(e.target.value) }))}
+                      className="w-full"
+                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        placeholder="Min"
+                        value={durationRangeFilter.min}
+                        onChange={(e) => setDurationRangeFilter(prev => ({ ...prev, min: parseInt(e.target.value) || 0 }))}
+                        className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Max"
+                        value={durationRangeFilter.max}
+                        onChange={(e) => setDurationRangeFilter(prev => ({ ...prev, max: parseInt(e.target.value) || 300 }))}
+                        className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Clear Filters Button */}
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-gray-600 hover:text-gray-800 underline"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {error && (
@@ -767,6 +991,128 @@ export default function ServicesPage() {
             </tbody>
           </table>
         </div>
+        
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div className="flex-1 flex justify-between sm:hidden">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                <p className="text-sm text-gray-700">
+                  Showing{' '}
+                  <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span>
+                  {' '}to{' '}
+                  <span className="font-medium">
+                    {Math.min(currentPage * itemsPerPage, totalServices)}
+                  </span>
+                  {' '}of{' '}
+                  <span className="font-medium">{totalServices}</span>
+                  {' '}results
+                </p>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-700">Show:</label>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                    className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37]"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                  <span className="text-sm text-gray-700">per page</span>
+                </div>
+              </div>
+              <div>
+                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="sr-only">Previous</span>
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  
+                  {/* Page numbers */}
+                  {(() => {
+                    const maxVisiblePages = 5;
+                    const halfVisible = Math.floor(maxVisiblePages / 2);
+                    let startPage = Math.max(1, currentPage - halfVisible);
+                    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                    
+                    // Adjust start page if we're near the end
+                    if (endPage - startPage + 1 < maxVisiblePages) {
+                      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                    }
+                    
+                    const pages = [];
+                    for (let i = startPage; i <= endPage; i++) {
+                      pages.push(
+                        <button
+                          key={i}
+                          onClick={() => handlePageChange(i)}
+                          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                            i === currentPage
+                              ? 'z-10 bg-[#D4AF37] border-[#D4AF37] text-white'
+                              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                          }`}
+                        >
+                          {i}
+                        </button>
+                      );
+                    }
+                    return pages;
+                  })()}
+                  
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="sr-only">Next</span>
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </nav>
+                
+                {/* Go to page input */}
+                <div className="flex items-center gap-2 ml-4">
+                  <span className="text-sm text-gray-700">Go to:</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max={totalPages}
+                    value={currentPage}
+                    onChange={(e) => {
+                      const page = parseInt(e.target.value);
+                      if (!isNaN(page)) {
+                        handleGoToPage(page);
+                      }
+                    }}
+                    className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37]"
+                  />
+                  <span className="text-sm text-gray-700">of {totalPages}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modal */}

@@ -39,6 +39,12 @@ div[data-bis_skin_checked] {
          transition-all duration-300 bg-white;
 }
 
+.form-input-with-icon {
+  @apply w-full py-3 pr-4 border border-gray-300 rounded-lg 
+         focus:ring-2 focus:ring-gold focus:border-gold 
+         transition-all duration-300 bg-white;
+}
+
 .form-label {
   @apply block text-sm font-medium text-gray-700 mb-2;
 }

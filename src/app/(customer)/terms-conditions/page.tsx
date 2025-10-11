@@ -261,7 +261,7 @@ export default function TermsAndConditions() {
               If you have any questions about these Terms and Conditions, please contact us:
             </p>
             <ul className="space-y-2 text-gray-600">
-              <li>Phone: +91 9637733733</li>
+              <li>Phone: +91 96377 33733</li>
               <li>Email: enlivesalon@gmail.com</li>
               <li>Address: Viman Nagar, Pune, Maharashtra</li>
             </ul>
