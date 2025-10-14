@@ -10,6 +10,7 @@ import {
   Heart,
   Calendar,
   Package,
+  Phone,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,7 +22,9 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
+  const [showPhoneNumber, setShowPhoneNumber] = useState(false);
   const accountDropdownRef = useRef<HTMLDivElement>(null);
+  const phoneRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
   const router = useRouter();
 
@@ -42,6 +45,12 @@ export default function Navbar() {
       ) {
         setIsAccountDropdownOpen(false);
       }
+      if (
+        phoneRef.current &&
+        !phoneRef.current.contains(event.target as Node)
+      ) {
+        setShowPhoneNumber(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -58,6 +67,10 @@ export default function Navbar() {
 
   const toggleAccountDropdown = () => {
     setIsAccountDropdownOpen(!isAccountDropdownOpen);
+  };
+
+  const togglePhoneNumber = () => {
+    setShowPhoneNumber(!showPhoneNumber);
   };
 
   const navItems = [
@@ -119,6 +132,31 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-2 sm:gap-4">
+          {/* CTA Button - Call Now */}
+          <div className="relative" ref={phoneRef}>
+            <button
+              onClick={togglePhoneNumber}
+              className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-full transition-all duration-300 ${
+                isScrolled 
+                  ? "bg-gold text-black hover:bg-gold-dark shadow-md" 
+                  : "bg-gold text-black hover:bg-gold-dark shadow-lg"
+              }`}
+            >
+              <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline text-sm font-medium">Call Now</span>
+            </button>
+
+            {showPhoneNumber && (
+              <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-xl shadow-xl border border-gray-200 py-3 px-4 z-50 animate-in slide-in-from-top-2 duration-200">
+                <div className="text-center">
+                  <p className="text-xs text-gray-500 mb-1">Call us at</p>
+                  <p className="text-lg font-bold text-gold">+91 98765 43210</p>
+                  <p className="text-xs text-gray-500 mt-1">Mon-Sun: 9AM-8PM</p>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Account Dropdown - Always visible */}
           {user ? (
             <div className="relative" ref={accountDropdownRef}>
