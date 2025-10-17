@@ -41,6 +41,11 @@ interface Stylist {
   };
   availableForHome: boolean;
   availableForSalon: boolean;
+  image?: {
+    public_id: string;
+    secure_url: string;
+    url: string;
+  };
 }
 
 interface TimeSlot {
@@ -1504,8 +1509,18 @@ export default function BookPage() {
                         className="card card-hover cursor-pointer p-6 border-2 border-transparent hover:border-gold transition-all duration-200"
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center">
-                            <User className="w-8 h-8 text-gold" />
+                          <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center">
+                            {stylist.image?.secure_url ? (
+                              <img 
+                                src={stylist.image.secure_url} 
+                                alt={stylist.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gold/10 flex items-center justify-center">
+                                <User className="w-8 h-8 text-gold" />
+                              </div>
+                            )}
                           </div>
                           <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-900">

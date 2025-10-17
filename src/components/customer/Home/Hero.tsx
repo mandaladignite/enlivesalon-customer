@@ -18,7 +18,7 @@ const carouselSlides = [
     ctaSecondary: "View Offers",
     stats: [
       { icon: Users, value: "10K+", label: "Delighted Clients" },
-      { icon: Star, value: "4.5", label: "Customer Rating" },
+      { icon: Star, value: "4.8", label: "Customer Rating" },
       { icon: Award, value: "35+", label: "Years of Expertise" }
     ]
   },

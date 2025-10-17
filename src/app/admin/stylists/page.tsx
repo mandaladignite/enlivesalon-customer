@@ -21,6 +21,11 @@ interface Stylist {
   availableForHome: boolean
   availableForSalon: boolean
   isActive: boolean
+  image?: {
+    public_id: string
+    secure_url: string
+    url: string
+  }
   createdAt: string
   updatedAt: string
 }
@@ -47,6 +52,8 @@ export default function StylistsPage() {
     availableForHome: false,
     availableForSalon: true
   })
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   const specialtyOptions = ['hair', 'nails', 'skincare', 'massage', 'makeup', 'other']
   const dayOptions = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
@@ -75,10 +82,37 @@ export default function StylistsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      const formDataToSend = new FormData()
+      
+      // Append all form data
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === 'specialties' || key === 'workingDays') {
+          // Send arrays as individual entries
+          if (Array.isArray(value)) {
+            value.forEach((item, index) => {
+              formDataToSend.append(`${key}[${index}]`, item)
+            })
+          }
+        } else if (key === 'workingHours') {
+          // Send working hours as individual fields
+          if (typeof value === 'object' && value !== null && 'start' in value && 'end' in value) {
+            formDataToSend.append('workingHours.start', (value as { start: string; end: string }).start)
+            formDataToSend.append('workingHours.end', (value as { start: string; end: string }).end)
+          }
+        } else {
+          formDataToSend.append(key, value.toString())
+        }
+      })
+      
+      // Append image file if selected
+      if (imageFile) {
+        formDataToSend.append('image', imageFile)
+      }
+      
       if (editingStylist) {
-        await stylistAPI.update(editingStylist._id, formData)
+        await stylistAPI.update(editingStylist._id, formDataToSend)
       } else {
-        await stylistAPI.create(formData)
+        await stylistAPI.create(formDataToSend)
       }
       setShowModal(false)
       setEditingStylist(null)
@@ -105,6 +139,8 @@ export default function StylistsPage() {
       availableForHome: stylist.availableForHome,
       availableForSalon: stylist.availableForSalon
     })
+    setImageFile(null)
+    setImagePreview(stylist.image?.secure_url || null)
     setShowModal(true)
   }
 
@@ -151,6 +187,8 @@ export default function StylistsPage() {
       availableForHome: false,
       availableForSalon: true
     })
+    setImageFile(null)
+    setImagePreview(null)
   }
 
   const handleSpecialtyChange = (specialty: string) => {
@@ -169,6 +207,18 @@ export default function StylistsPage() {
         ? prev.workingDays.filter(d => d !== day)
         : [...prev.workingDays, day]
     }))
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setImageFile(file)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
   }
 
   if (loading) {
@@ -236,9 +286,17 @@ export default function StylistsPage() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
-                        <div className="h-10 w-10 rounded-full bg-[#D4AF37] flex items-center justify-center">
-                          <Scissors className="h-5 w-5 text-white" />
-                        </div>
+                        {stylist.image?.secure_url ? (
+                          <img 
+                            src={stylist.image.secure_url} 
+                            alt={stylist.name}
+                            className="h-10 w-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-[#D4AF37] flex items-center justify-center">
+                            <Scissors className="h-5 w-5 text-white" />
+                          </div>
+                        )}
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{stylist.name}</div>
@@ -328,6 +386,35 @@ export default function StylistsPage() {
                 {editingStylist ? 'Edit Stylist' : 'Add New Stylist'}
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Image Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image</label>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-shrink-0">
+                      {imagePreview ? (
+                        <img 
+                          src={imagePreview} 
+                          alt="Preview" 
+                          className="h-20 w-20 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center">
+                          <Scissors className="h-8 w-8 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#D4AF37] file:text-white hover:file:bg-[#B8941F]"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">JPG, PNG, GIF, WebP up to 10MB</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Name</label>

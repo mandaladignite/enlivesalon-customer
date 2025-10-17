@@ -70,7 +70,11 @@ export default function Testimonials() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await reviewAPI.getActive({ limit: 10 });
+        // Fetch all active reviews without service filtering for home page
+        const response = await reviewAPI.getAll({ 
+          limit: 10, 
+          isActive: 'true' 
+        });
         if (response.data && response.data.reviews && response.data.reviews.length > 0) {
           setTestimonials(response.data.reviews);
         }

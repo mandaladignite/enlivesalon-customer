@@ -24,6 +24,11 @@ interface Stylist {
   availableForHome: boolean;
   availableForSalon: boolean;
   isActive: boolean;
+  image?: {
+    public_id: string;
+    secure_url: string;
+    url: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -191,7 +196,7 @@ export default function TeamPage() {
               >
                 <div className="relative overflow-hidden">
                   <img 
-                    src="/client.jpg" 
+                    src={stylist.image?.secure_url || "/client.jpg"} 
                     alt={stylist.name} 
                     className="w-full h-80 object-cover group-hover:scale-105 transition duration-700"
                   />
@@ -273,7 +278,7 @@ export default function TeamPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
                 <div>
                   <img 
-                    src="/client.jpg" 
+                    src={selectedMember.image?.secure_url || "/client.jpg"} 
                     alt={selectedMember.name} 
                     className="w-full h-96 object-cover rounded-lg"
                   />

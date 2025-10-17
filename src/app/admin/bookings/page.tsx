@@ -28,6 +28,11 @@ type Appointment = {
     name: string;
     specialties: string[];
     rating: number;
+    image?: {
+      public_id: string;
+      secure_url: string;
+      url: string;
+    };
   };
   date: string;
   timeSlot: string;
@@ -768,14 +773,25 @@ export default function BookingsPage() {
                     <div className="text-sm text-gray-600">{formatTime(appointment.timeSlot)}</div>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="text-gray-900">
-                      {appointment.stylistId ? appointment.stylistId.name : 'TBD'}
-                    </div>
-                    {appointment.stylistId && (
-                      <div className="text-xs text-gray-500">
-                        {appointment.stylistId.specialties.join(', ')}
+                    <div className="flex items-center gap-2">
+                      {appointment.stylistId?.image?.secure_url && (
+                        <img 
+                          src={appointment.stylistId.image.secure_url} 
+                          alt={appointment.stylistId.name}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      )}
+                      <div>
+                        <div className="text-gray-900">
+                          {appointment.stylistId ? appointment.stylistId.name : 'TBD'}
+                        </div>
+                        {appointment.stylistId && (
+                          <div className="text-xs text-gray-500">
+                            {appointment.stylistId.specialties.join(', ')}
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </td>
                   <td className="px-4 py-4 font-medium text-gray-900">
                     ₹{appointment.totalPrice}
