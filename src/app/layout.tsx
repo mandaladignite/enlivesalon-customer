@@ -99,8 +99,8 @@ export default function RootLayout({
               // Performance optimization: Preload critical resources
               if ('requestIdleCallback' in window) {
                 requestIdleCallback(() => {
-                  // Preload critical images
-                  const criticalImages = ['/logo.png', '/herobg.jpg'];
+                  // Preload critical images - only the first slide image
+                  const criticalImages = ['/logo.png', '/diwali-offer.jpg'];
                   criticalImages.forEach(src => {
                     const link = document.createElement('link');
                     link.rel = 'preload';

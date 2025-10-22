@@ -40,7 +40,7 @@ export const useMemberships = (status?: string) => {
       setError(null);
       // Only include status in the request if it's provided and not 'all'
       const params = status && status !== 'all' ? { status } : {};
-      const response = await membershipAPI.getMyAll(params);
+      const response = await membershipAPI.getMyMemberships(params);
       if (response.success) {
         setMemberships(response.data.memberships);
       } else {
@@ -108,7 +108,7 @@ export const useMembershipActions = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await membershipAPI.purchase(packageId, notes);
+      const response = await membershipAPI.purchase({ packageId, notes });
       if (response.success) {
         return response.data;
       } else {

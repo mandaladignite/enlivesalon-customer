@@ -13,6 +13,16 @@ const nextConfig: NextConfig = {
       },
     },
   },
+
+  // API proxy configuration
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:8000/api/:path*',
+      },
+    ];
+  },
   
   // Image optimization
   images: {

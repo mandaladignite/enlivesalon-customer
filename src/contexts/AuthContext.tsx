@@ -7,7 +7,7 @@ interface User {
   _id: string;
   name: string;
   email: string;
-  role: 'guest' | 'customer' | 'admin';
+  role: 'guest' | 'customer';
   phone?: string;
   isActive: boolean;
   lastLogin?: string;

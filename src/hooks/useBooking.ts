@@ -204,7 +204,7 @@ export function useStylistAvailability() {
 
     try {
       const response = await withRetry(
-        () => appointmentAPI.getAvailableTimeSlots(stylistId, date),
+        () => appointmentAPI.getAvailableSlots(stylistId, date),
         {
           maxRetries: 2,
           retryDelay: 500
@@ -299,7 +299,7 @@ export function useAppointmentOperations() {
 
     try {
       const response = await withRetry(
-        () => appointmentAPI.reschedule(appointmentId, newDate, newTimeSlot, reason),
+        () => appointmentAPI.reschedule(appointmentId, `${newDate}T${newTimeSlot}`),
         {
           maxRetries: 2,
           retryDelay: 1000

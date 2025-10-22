@@ -181,7 +181,9 @@ export default function Testimonials() {
               src={testimonial.image.secure_url || testimonial.image.url}
               alt={testimonial.name}
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
+              priority={index === 0}
             />
           </motion.div>
         </AnimatePresence>

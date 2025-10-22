@@ -32,7 +32,7 @@ export default function MembershipPayment({
       setProcessing(true);
 
       // First, create the membership order with the backend
-      const result = await membershipAPI.purchase(membership._id, '', false);
+      const result = await membershipAPI.purchase({ membershipId: membership._id });
       
       if (!result.success) {
         throw new Error(result.message || 'Failed to create membership order');

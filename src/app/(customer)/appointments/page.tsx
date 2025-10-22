@@ -119,7 +119,7 @@ export default function AppointmentsPage() {
         params.status = selectedStatus;
       }
       
-      const response = await appointmentAPI.getUserAppointments(params);
+      const response = await appointmentAPI.getMyAppointments(params);
       setAppointments(response.data?.appointments || []);
     } catch (error: any) {
       setError(error.message || "Failed to load appointments");

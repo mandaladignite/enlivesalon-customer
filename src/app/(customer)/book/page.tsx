@@ -267,7 +267,7 @@ export default function BookPage() {
   const fetchAvailableSlots = async (stylistId: string, date: string) => {
     try {
       setLoadingSlots(true);
-      const response = await appointmentAPI.getAvailableTimeSlots(stylistId, date);
+      const response = await appointmentAPI.getAvailableSlots(stylistId, date);
       const slots = response.data?.availableSlots || [];
       
       if (slots.length > 0) {

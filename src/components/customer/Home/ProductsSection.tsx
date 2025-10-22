@@ -46,6 +46,7 @@ export default function GroomingSection() {
           src="/products.jpg" // replace with your image path
           alt="Men's Grooming Products"
           fill
+          sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover"
         />
       </motion.div>
