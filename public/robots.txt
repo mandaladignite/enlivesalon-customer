@@ -26,4 +26,4 @@ Disallow: /_next/
 Host: https://enlivesalon.com
 
 # Sitemaps
-Sitemap: https://enlivesalon.com/sitemap.xml
+Sitemap: https://www.enlivesalon.com/sitemap.xml
