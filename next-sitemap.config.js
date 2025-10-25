@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://enlivesalon.com',
+  siteUrl: 'https://enlivesalon.com',
   generateRobotsTxt: true,
   generateIndexSitemap: false,
   exclude: ['/admin/*', '/auth/*', '/api/*', '/_next/*'],
@@ -23,9 +23,9 @@ module.exports = {
       },
     ],
     additionalSitemaps: [
-      `${process.env.NEXT_PUBLIC_BASE_URL || 'https://enlivesalon.com'}/sitemap.xml`,
+      'https://enlivesalon.com/sitemap.xml',
     ],
-    host: process.env.NEXT_PUBLIC_BASE_URL || 'https://enlivesalon.com',
+    host: 'https://enlivesalon.com',
   },
   transform: async (config, path) => {
     // Custom transform for different page types

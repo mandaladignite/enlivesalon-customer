@@ -23,7 +23,7 @@ Disallow: /api/
 Disallow: /_next/
 
 # Host
-Host: http://localhost:8001
+Host: https://enlivesalon.com
 
 # Sitemaps
-Sitemap: http://localhost:8001/sitemap.xml
+Sitemap: https://enlivesalon.com/sitemap.xml
