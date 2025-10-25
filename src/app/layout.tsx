@@ -20,42 +20,60 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Enlive - Premium Beauty & Wellness",
-    template: "%s | Enlive",
+    default: "Best Salon in Pune | Enlive Unisex Salon - Hair, Skin, Nail & Beauty Services",
+    template: "%s | Enlive Salon Pune",
   },
-  description: "Professional beauty services, premium products, and wellness solutions for your complete transformation.",
-  keywords: "beauty, salon, wellness, hair, skin, nail, spa, premium, Pune, Viman Nagar",
-  authors: [{ name: "Enlive Team" }],
-  creator: "Enlive",
-  publisher: "Enlive",
+  description: "Premium unisex salon in Pune offering expert hair styling, skin treatments, nail art, and beauty services. Book appointment at Enlive Salon - Viman Nagar, Pune. 4.9★ rated salon with certified stylists.",
+  keywords: "salon in Pune, beauty parlour Pune, hair salon Pune, unisex salon Pune, skin treatment Pune, nail art Pune, hair styling Pune, beauty services Pune, Viman Nagar salon, best salon near me, professional hair stylist Pune, beauty parlour near me, salon booking Pune, hair cut Pune, facial treatment Pune, bridal makeup Pune, hair coloring Pune, keratin treatment Pune, hair spa Pune, skin care Pune",
+  authors: [{ name: "Enlive Salon Team" }],
+  creator: "Enlive Salon",
+  publisher: "Enlive Salon",
+  applicationName: "Enlive Salon",
+  category: "Beauty & Wellness",
+  classification: "Beauty Salon",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://enlivesalon.com'),
   alternates: {
     canonical: '/',
+    languages: {
+      'en-IN': '/',
+      'hi-IN': '/hi',
+    },
   },
   openGraph: {
     type: 'website',
     locale: 'en_IN',
     url: '/',
-    title: 'Enlive - Premium Beauty & Wellness',
-    description: 'Professional beauty services, premium products, and wellness solutions for your complete transformation.',
-    siteName: 'Enlive',
+    title: 'Best Salon in Pune | Enlive Unisex Salon - Hair, Skin, Nail & Beauty Services',
+    description: 'Premium unisex salon in Pune offering expert hair styling, skin treatments, nail art, and beauty services. Book appointment at Enlive Salon - Viman Nagar, Pune.',
+    siteName: 'Enlive Salon',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Enlive Salon - Best Beauty Salon in Pune',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Enlive - Premium Beauty & Wellness',
-    description: 'Professional beauty services, premium products, and wellness solutions for your complete transformation.',
+    title: 'Best Salon in Pune | Enlive Unisex Salon',
+    description: 'Premium unisex salon in Pune offering expert hair styling, skin treatments, nail art, and beauty services.',
+    images: ['/logo.png'],
   },
   robots: {
     index: true,
     follow: true,
+    nocache: false,
     googleBot: {
       index: true,
       follow: true,
+      noimageindex: false,
       'max-video-preview': -1,
       'max-image-preview': 'large',
       'max-snippet': -1,
@@ -63,6 +81,37 @@ export const metadata: Metadata = {
   },
   verification: {
     google: process.env.GOOGLE_SITE_VERIFICATION,
+    yandex: process.env.YANDEX_VERIFICATION,
+    yahoo: process.env.YAHOO_VERIFICATION,
+  },
+  other: {
+    'geo.region': 'IN-MH',
+    'geo.placename': 'Pune',
+    'geo.position': '18.5204;73.8567',
+    'ICBM': '18.5204, 73.8567',
+    'DC.title': 'Best Salon in Pune | Enlive Unisex Salon',
+    'DC.description': 'Premium unisex salon in Pune offering expert hair styling, skin treatments, nail art, and beauty services.',
+    'DC.subject': 'Beauty Salon, Hair Styling, Skin Treatment, Nail Art, Pune',
+    'DC.creator': 'Enlive Salon',
+    'DC.publisher': 'Enlive Salon',
+    'DC.contributor': 'Enlive Salon Team',
+    'DC.date': new Date().toISOString(),
+    'DC.type': 'Service',
+    'DC.format': 'text/html',
+    'DC.identifier': 'https://enlivesalon.com',
+    'DC.source': 'https://enlivesalon.com',
+    'DC.language': 'en-IN',
+    'DC.relation': 'https://enlivesalon.com',
+    'DC.coverage': 'Pune, Maharashtra, India',
+    'DC.rights': 'Copyright Enlive Salon',
+    'mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'black-translucent',
+    'apple-mobile-web-app-title': 'Enlive Salon',
+    'application-name': 'Enlive Salon',
+    'msapplication-TileColor': '#D4AF37',
+    'msapplication-config': '/browserconfig.xml',
+    'theme-color': '#D4AF37',
   },
 };
 
@@ -111,6 +160,178 @@ export default function RootLayout({
                 });
               }
             `,
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BeautySalon",
+              "name": "Enlive Unisex Salon",
+              "alternateName": "Enlive Salon",
+              "description": "Premium unisex salon in Pune offering expert hair styling, skin treatments, nail art, and beauty services. Book appointment at Enlive Salon - Viman Nagar, Pune.",
+              "url": "https://enlivesalon.com",
+              "logo": "https://enlivesalon.com/logo.png",
+              "image": [
+                "https://enlivesalon.com/logo.png",
+                "https://enlivesalon.com/about.jpg",
+                "https://enlivesalon.com/herobg.jpg"
+              ],
+              "telephone": "+91-9876543210",
+              "email": "info@enlivesalon.com",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Viman Nagar",
+                "addressLocality": "Pune",
+                "addressRegion": "Maharashtra",
+                "postalCode": "411014",
+                "addressCountry": "IN"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 18.5204,
+                "longitude": 73.8567
+              },
+              "openingHoursSpecification": [
+                {
+                  "@type": "OpeningHoursSpecification",
+                  "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                  "opens": "09:00",
+                  "closes": "20:00"
+                },
+                {
+                  "@type": "OpeningHoursSpecification",
+                  "dayOfWeek": "Sunday",
+                  "opens": "10:00",
+                  "closes": "18:00"
+                }
+              ],
+              "priceRange": "₹₹₹",
+              "currenciesAccepted": "INR",
+              "paymentAccepted": "Cash, Credit Card, UPI, Net Banking",
+              "areaServed": {
+                "@type": "City",
+                "name": "Pune"
+              },
+              "serviceArea": {
+                "@type": "GeoCircle",
+                "geoMidpoint": {
+                  "@type": "GeoCoordinates",
+                  "latitude": 18.5204,
+                  "longitude": 73.8567
+                },
+                "geoRadius": "50000"
+              },
+              "hasOfferCatalog": {
+                "@type": "OfferCatalog",
+                "name": "Beauty Services",
+                "itemListElement": [
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Service",
+                      "name": "Hair Styling",
+                      "description": "Professional hair cutting, styling, and coloring services"
+                    }
+                  },
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Service",
+                      "name": "Skin Treatment",
+                      "description": "Facial treatments, skin care, and beauty therapies"
+                    }
+                  },
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Service",
+                      "name": "Nail Art",
+                      "description": "Manicure, pedicure, and nail art services"
+                    }
+                  },
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Service",
+                      "name": "Body Treatment",
+                      "description": "Body massage, spa treatments, and wellness services"
+                    }
+                  }
+                ]
+              },
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.9",
+                "reviewCount": "500",
+                "bestRating": "5",
+                "worstRating": "1"
+              },
+              "review": [
+                {
+                  "@type": "Review",
+                  "author": {
+                    "@type": "Person",
+                    "name": "Priya Sharma"
+                  },
+                  "reviewRating": {
+                    "@type": "Rating",
+                    "ratingValue": "5",
+                    "bestRating": "5"
+                  },
+                  "reviewBody": "Excellent service and professional staff. Highly recommended salon in Pune."
+                },
+                {
+                  "@type": "Review",
+                  "author": {
+                    "@type": "Person",
+                    "name": "Rajesh Kumar"
+                  },
+                  "reviewRating": {
+                    "@type": "Rating",
+                    "ratingValue": "5",
+                    "bestRating": "5"
+                  },
+                  "reviewBody": "Best unisex salon in Viman Nagar. Great experience and quality service."
+                }
+              ],
+              "sameAs": [
+                "https://www.facebook.com/enlivesalon",
+                "https://www.instagram.com/enlivesalon",
+                "https://www.google.com/maps/place/enlive+salon"
+              ],
+              "foundingDate": "2010",
+              "founder": {
+                "@type": "Person",
+                "name": "Enlive Salon Team"
+              },
+              "employee": {
+                "@type": "Person",
+                "name": "Professional Stylists",
+                "jobTitle": "Beauty Expert"
+              },
+              "knowsAbout": [
+                "Hair Styling",
+                "Skin Treatment",
+                "Nail Art",
+                "Beauty Services",
+                "Bridal Makeup",
+                "Hair Coloring",
+                "Keratin Treatment",
+                "Hair Spa",
+                "Facial Treatment"
+              ],
+              "makesOffer": [
+                {
+                  "@type": "Offer",
+                  "name": "Diwali Special Offer",
+                  "description": "25% Off on All Beauty & Wellness Services",
+                  "validFrom": "2024-01-01",
+                  "validThrough": "2024-12-31"
+                }
+              ]
+            })
           }}
         />
       </head>

@@ -39,13 +39,13 @@ export default function AboutSection() {
             </span>
           </motion.div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Where Style Meets{' '}
+            Best Salon in Pune - Where Style Meets{' '}
             <span className="bg-gradient-to-r from-gold to-gold-dark bg-clip-text text-transparent">
               Personality
             </span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Discover the perfect blend of modern trends and traditional craftsmanship
+            Discover Pune's premier unisex salon offering the perfect blend of modern beauty trends and traditional craftsmanship. Located in Viman Nagar, we serve all areas of Pune with expert hair styling, skin treatments, and nail art services.
           </p>
         </motion.div>
 
@@ -103,21 +103,21 @@ export default function AboutSection() {
             {/* Introduction */}
             <div className="space-y-4">
               <h3 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Your Premier Beauty Destination
+                Pune's Premier Beauty Destination
               </h3>
               
               <p className="text-gray-700 leading-relaxed text-lg">
-                At <span className="font-semibold text-gold">Enlive Unisex Salon</span>, 
+                At <span className="font-semibold text-gold">Enlive Unisex Salon</span> in Viman Nagar, Pune, 
                 we believe that grooming is an art form that celebrates your unique personality. 
-                Our mission is to provide more than just a haircut—we deliver an experience 
+                As Pune's most trusted salon, our mission is to provide more than just a haircut—we deliver an experience 
                 that boosts your confidence and reflects your identity.
               </p>
 
               <p className="text-gray-700 leading-relaxed text-lg">
-                Our talented team combines <span className="font-semibold">European barbering traditions</span> 
-                with the latest trends, ensuring every visit leaves you looking and feeling 
-                exceptional. From precision cuts to luxurious treatments, we're dedicated 
-                to excellence in every detail.
+                Our talented team of certified stylists combines <span className="font-semibold">European barbering traditions</span> 
+                with the latest beauty trends, ensuring every visit leaves you looking and feeling 
+                exceptional. From precision hair cuts to luxurious skin treatments, nail art, and bridal makeup services, we're dedicated 
+                to excellence in every detail for our Pune clients.
               </p>
             </div>
 

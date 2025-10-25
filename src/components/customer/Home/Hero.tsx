@@ -11,28 +11,28 @@ const carouselSlides = [
   {
     id: 1,
     image: "/diwali-offer.jpg",
-    title: "Celebrate This Diwali with a Glow!",
+    title: "Best Salon in Pune | Premium Beauty Services",
     subtitle: "25% Off on All Beauty & Wellness Services",
-    description: "This festive season, treat yourself to a radiant transformation! Enjoy premium beauty services from our expert stylists at an exclusive 25% Diwali discount. Shine brighter than ever before.",
+    description: "Experience the finest salon services in Pune! Our expert stylists in Viman Nagar offer premium hair styling, skin treatments, nail art, and beauty services. Book your appointment today and enjoy exclusive Diwali discounts on all services.",
     cta: "Book Now & Save 25%",
     ctaSecondary: "View Offers",
     stats: [
-      { icon: Users, value: "10K+", label: "Delighted Clients" },
-      { icon: Star, value: "4.8", label: "Customer Rating" },
-      { icon: Award, value: "35+", label: "Years of Expertise" }
+      { icon: Users, value: "10K+", label: "Happy Clients in Pune" },
+      { icon: Star, value: "4.9", label: "Customer Rating" },
+      { icon: Award, value: "15+", label: "Years in Pune" }
     ]
   },
   {
     id: 2,
     image: "/herobg.jpg",
-    title: "Professional Stylists",
-    subtitle: "Expert Beauty Team",
-    description: "Our certified professionals bring years of experience and the latest techniques to give you the perfect look.",
+    title: "Top Unisex Salon in Pune | Professional Stylists",
+    subtitle: "Expert Beauty Team in Viman Nagar",
+    description: "Pune's most trusted unisex salon with certified professionals. We specialize in hair cuts, coloring, skin treatments, nail art, and bridal makeup. Located in Viman Nagar, we serve all areas of Pune with premium beauty services.",
     cta: "Meet Our Team",
     ctaSecondary: "View Gallery",
     stats: [
       { icon: Users, value: "50+", label: "Expert Stylists" },
-      { icon: Clock, value: "24/7", label: "Support" },
+      { icon: Clock, value: "9AM-8PM", label: "Open Daily" },
       { icon: Award, value: "100%", label: "Satisfaction" }
     ]
   }

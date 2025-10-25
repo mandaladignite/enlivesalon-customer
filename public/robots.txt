@@ -1,12 +1,77 @@
-# *
+# Robots.txt for Enlive Salon - Best Salon in Pune
+# Optimized for search engine crawling and indexing
+
+# Allow all search engines to crawl the site
 User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /auth/
 Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /uploads/temp/
 
-# Host
-Host: http://localhost:8001
+# Specific instructions for major search engines
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /api/
+Disallow: /_next/
+Crawl-delay: 1
 
-# Sitemaps
-Sitemap: http://localhost:8001/sitemap.xml
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /api/
+Disallow: /_next/
+Crawl-delay: 2
+
+User-agent: Slurp
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /api/
+Disallow: /_next/
+Crawl-delay: 2
+
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /api/
+Disallow: /_next/
+
+User-agent: Baiduspider
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /api/
+Disallow: /_next/
+
+User-agent: YandexBot
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /api/
+Disallow: /_next/
+
+# Block problematic bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# Sitemap locations
+Sitemap: https://enlivesalon.com/sitemap.xml
+Sitemap: https://enlivesalon.com/sitemap-0.xml
+
+# Host directive
+Host: https://enlivesalon.com
