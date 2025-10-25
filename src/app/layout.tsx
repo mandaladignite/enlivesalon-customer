@@ -31,6 +31,27 @@ export const metadata: Metadata = {
   applicationName: "Enlive Salon",
   category: "Beauty & Wellness",
   classification: "Beauty Salon",
+  icons: {
+    icon: [
+      { url: '/logo.png', sizes: '32x32', type: 'image/png' },
+      { url: '/logo.png', sizes: '16x16', type: 'image/png' },
+      { url: '/logo.png', sizes: '48x48', type: 'image/png' },
+      { url: '/logo.png', sizes: '64x64', type: 'image/png' },
+      { url: '/logo.png', sizes: '96x96', type: 'image/png' },
+      { url: '/logo.png', sizes: '128x128', type: 'image/png' },
+      { url: '/logo.png', sizes: '192x192', type: 'image/png' },
+      { url: '/logo.png', sizes: '256x256', type: 'image/png' },
+      { url: '/logo.png', sizes: '512x512', type: 'image/png' }
+    ],
+    shortcut: '/logo.png',
+    apple: [
+      { url: '/logo.png', sizes: '180x180', type: 'image/png' }
+    ],
+    other: [
+      { rel: 'icon', url: '/logo.png', sizes: '32x32', type: 'image/png' },
+      { rel: 'icon', url: '/logo.png', sizes: '16x16', type: 'image/png' }
+    ]
+  },
   formatDetection: {
     email: false,
     address: false,
@@ -134,6 +155,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
+        <link rel="icon" href="/logo.png" type="image/png" />
+        <link rel="shortcut icon" href="/logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
