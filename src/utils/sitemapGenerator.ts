@@ -28,7 +28,6 @@ export const seoPages = [
     url: '/hair',
     priority: 0.9,
     changefreq: 'weekly',
-    changefreq: 'weekly',
     lastmod: new Date().toISOString(),
     images: [
       {
