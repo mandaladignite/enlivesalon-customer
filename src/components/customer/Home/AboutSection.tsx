@@ -58,14 +58,15 @@ export default function AboutSection() {
             viewport={{ once: true }}
             className="relative"
           >
-            {/* Main Image */}
+            {/* Main Video */}
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-              <img
-                src="/about.jpg"
-                alt="Enlive Salon Team"
-                className="w-full h-[400px] sm:h-[500px] object-cover transform hover:scale-105 transition-transform duration-700"
+              <video
+                src="/enlivestore.mp4"
+                className="w-full h-auto object-contain"
+                autoPlay
+                controls
+                playsInline
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               
               {/* Floating Badge */}
               <motion.div
@@ -82,14 +83,7 @@ export default function AboutSection() {
               </motion.div>
             </div>
 
-            {/* Decorative Element - positioned within bounds */}
-            <motion.div
-              initial={{ opacity: 0, rotate: -45 }}
-              whileInView={{ opacity: 1, rotate: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="absolute bottom-0 left-0 w-20 h-20 bg-gold/20 rounded-2xl border border-gold/30 backdrop-blur-sm"
-            ></motion.div>
+            
           </motion.div>
 
           {/* Right Content */}

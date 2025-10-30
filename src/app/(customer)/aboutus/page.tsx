@@ -42,10 +42,12 @@ export default function AboutUs() {
             viewport={{ once: true }}
             className="w-full lg:w-1/2"
           >
-            <img 
-              src="/about.jpg" 
-              alt="Enlive Salon Interior" 
-              className="rounded-lg shadow-lg w-full h-auto object-cover"
+            <video
+              src="/enlivestore.mp4"
+              className="rounded-lg shadow-lg w-full h-auto object-contain"
+              controls
+              loop
+              playsInline
             />
           </motion.div>
           
