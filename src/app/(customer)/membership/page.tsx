@@ -95,7 +95,7 @@ export default function Membership() {
     {
       icon: <Star className="w-10 h-10 text-amber-500" />,
       title: "Exclusive Discounts",
-      description: "Enjoy up to 40% savings on premium services and exclusive member-only pricing.",
+      description: "Enjoy up to 20% savings on premium services and exclusive member-only pricing.",
       color: "from-amber-50 to-amber-100",
       iconBg: "bg-amber-100"
     },
@@ -245,7 +245,7 @@ export default function Membership() {
             <p className="text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed max-w-3xl">
               Elevate your beauty experience with our exclusive membership plans. 
               <span className="text-amber-600 font-semibold"> Unlock premium benefits</span> and 
-              <span className="text-purple-600 font-semibold"> save up to 40%</span> on all services.
+              <span className="text-purple-600 font-semibold"> save up to 20%</span> on all services.
             </p>
 
           </motion.div>

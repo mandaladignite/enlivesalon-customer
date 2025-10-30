@@ -116,6 +116,19 @@ export async function apiRequest<T = any>(
   throw lastError || new Error('API request failed after all retries');
 }
 
+function buildQueryString(params: any) {
+  const entries = Object.entries(params || {});
+  const mapped: Record<string,string> = {};
+  for (const [key, value] of entries) {
+    if (typeof value === 'boolean') {
+      mapped[key] = value ? 'true' : 'false';
+    } else {
+      mapped[key] = value == null ? '' : String(value);
+    }
+  }
+  return entries.length ? `?${new URLSearchParams(mapped).toString()}` : '';
+}
+
 // Auth APIs
 export const authAPI = {
   login: (credentials: { email: string; password: string }) =>
@@ -161,7 +174,7 @@ export const authAPI = {
 // Service APIs
 export const serviceAPI = {
   getAll: (params?: any) => {
-    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    const queryString = buildQueryString(params);
     return apiRequest(`/services${queryString}`);
   },
 
@@ -169,7 +182,7 @@ export const serviceAPI = {
     apiRequest(`/services/${id}`),
 
   getByCategory: (category: string, params?: any) => {
-    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    const queryString = buildQueryString(params);
     return apiRequest(`/services/category/${category}${queryString}`);
   },
 
@@ -180,7 +193,7 @@ export const serviceAPI = {
 // Stylist APIs
 export const stylistAPI = {
   getAll: (params?: any) => {
-    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    const queryString = buildQueryString(params);
     return apiRequest(`/stylists${queryString}`);
   },
 
@@ -203,7 +216,7 @@ export const appointmentAPI = {
     }),
 
   getMyAppointments: (params?: any) => {
-    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    const queryString = buildQueryString(params);
     return apiRequest(`/appointments/my${queryString}`);
   },
 
@@ -238,7 +251,7 @@ export const appointmentAPI = {
 // Package APIs
 export const packageAPI = {
   getAll: (params?: any) => {
-    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    const queryString = buildQueryString(params);
     return apiRequest(`/packages${queryString}`);
   },
 
@@ -252,7 +265,7 @@ export const packageAPI = {
 // Membership APIs
 export const membershipAPI = {
   getAll: (params?: any) => {
-    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    const queryString = buildQueryString(params);
     return apiRequest(`/memberships${queryString}`);
   },
 
@@ -260,7 +273,7 @@ export const membershipAPI = {
     apiRequest(`/memberships/${id}`),
 
   getMyMemberships: (params?: any) => {
-    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    const queryString = buildQueryString(params);
     return apiRequest(`/memberships/my${queryString}`);
   },
 
@@ -300,7 +313,7 @@ export const membershipAPI = {
 // Gallery APIs
 export const galleryAPI = {
   getAll: (params?: any) => {
-    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    const queryString = buildQueryString(params);
     return apiRequest(`/gallery${queryString}`);
   },
 
@@ -323,7 +336,7 @@ export const reviewAPI = {
     }),
 
   getAll: (params?: any) => {
-    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    const queryString = buildQueryString(params);
     return apiRequest(`/reviews${queryString}`);
   },
 
@@ -391,7 +404,7 @@ export const enquiryAPI = {
     }),
 
   getMyEnquiries: (params?: any) => {
-    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    const queryString = buildQueryString(params);
     return apiRequest(`/enquiries/my${queryString}`);
   },
 };

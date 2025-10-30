@@ -35,7 +35,7 @@ export default function Home() {
 
       {/* Hero - Critical above-the-fold content */}
       <section>
-        <Suspense fallback={<SectionFallback height="min-h-[600px]" />}>
+        <Suspense fallback={<SectionFallback height="h-screen"/>}>
           <Hero />
         </Suspense>
       </section>
