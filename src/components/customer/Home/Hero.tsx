@@ -178,7 +178,7 @@ export default function HeroCarousel() {
                         href={
                           slide.ctaSecondary === "View Gallery"
                             ? "/gallery"
-                            : "/services"
+                            : "/offers"
                         }
                         className="border border-white/40 hover:border-gold text-white font-medium px-6 py-3 rounded-md backdrop-blur-sm hover:bg-gold/10 transition-transform hover:scale-105 text-sm sm:text-base"
                       >

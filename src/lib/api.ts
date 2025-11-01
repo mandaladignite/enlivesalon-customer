@@ -408,3 +408,17 @@ export const enquiryAPI = {
     return apiRequest(`/enquiries/my${queryString}`);
   },
 };
+
+// Offer APIs
+export const offerAPI = {
+  getAll: (params?: any) => {
+    const queryString = buildQueryString(params);
+    return apiRequest(`/offers${queryString}`);
+  },
+
+  getById: (id: string) =>
+    apiRequest(`/offers/${id}`),
+
+  getByCode: (code: string) =>
+    apiRequest(`/offers/code/${code}`),
+};

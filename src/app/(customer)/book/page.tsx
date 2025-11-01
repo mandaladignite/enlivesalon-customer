@@ -146,13 +146,21 @@ export default function BookPage() {
     if (user) {
       fetchData();
       
-      // Handle URL parameters for pre-selected service
+      // Handle URL parameters for pre-selected service(s)
       const serviceId = searchParams.get('serviceId');
+      const serviceIds = searchParams.get('serviceIds'); // For combo offers
       const step = searchParams.get('step');
+      const offerCode = searchParams.get('offerCode');
       
-      if (serviceId && step) {
+      if (step) {
         // Set the step from URL parameter
         setCurrentStep(parseInt(step));
+      }
+      
+      // Store offer code if provided
+      if (offerCode) {
+        // Could store in localStorage or state for later use during booking
+        localStorage.setItem('selectedOfferCode', offerCode);
       }
     } else {
       // Only redirect if auth is not loading and user is not authenticated
@@ -160,20 +168,41 @@ export default function BookPage() {
     }
   }, [user, authLoading, router, searchParams]);
 
-  // Handle pre-selected service after data is loaded
+  // Handle pre-selected service(s) after data is loaded
   useEffect(() => {
     const serviceId = searchParams.get('serviceId');
-    if (serviceId && services.length > 0) {
-      const preSelectedService = services.find(service => service._id === serviceId);
-      if (preSelectedService) {
-        setSelectedServices([preSelectedService]);
-        setBookingData(prev => ({
-          ...prev,
-          serviceIds: [serviceId]
-        }));
+    const serviceIds = searchParams.get('serviceIds'); // For combo offers
+    
+    if (services.length > 0) {
+      if (serviceIds) {
+        // Handle multiple services for combo offers
+        const ids = serviceIds.split(',').filter(id => id.trim());
+        const preSelectedServices = services.filter(service => ids.includes(service._id));
+        
+        if (preSelectedServices.length > 0) {
+          setSelectedServices(preSelectedServices);
+          setBookingData(prev => ({
+            ...prev,
+            serviceIds: preSelectedServices.map(s => s._id)
+          }));
+          // Auto-advance to step 2 if services are pre-selected
+          if (currentStep === 1) {
+            setCurrentStep(2);
+          }
+        }
+      } else if (serviceId) {
+        // Handle single service (backward compatibility)
+        const preSelectedService = services.find(service => service._id === serviceId);
+        if (preSelectedService) {
+          setSelectedServices([preSelectedService]);
+          setBookingData(prev => ({
+            ...prev,
+            serviceIds: [serviceId]
+          }));
+        }
       }
     }
-  }, [services, searchParams]);
+  }, [services, searchParams, currentStep]);
 
   // Reset pagination when search or filters change
   useEffect(() => {
