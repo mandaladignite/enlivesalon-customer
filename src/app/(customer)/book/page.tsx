@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { serviceAPI, stylistAPI, appointmentAPI } from '@/lib/api';
-import { Calendar, Clock, User, Scissors, CheckCircle, AlertCircle, MapPin, Star, Phone, Mail, ArrowLeft, ArrowRight, Home, Building2, Search, Filter, X, SlidersHorizontal } from 'lucide-react';
+import { serviceAPI, stylistAPI, appointmentAPI, offerAPI } from '@/lib/api';
+import { Calendar, Clock, User, Scissors, CheckCircle, AlertCircle, MapPin, Star, Phone, Mail, ArrowLeft, ArrowRight, Home, Building2, Search, Filter, X, SlidersHorizontal, Gift } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -70,6 +70,23 @@ interface BookingData {
   };
 }
 
+interface Offer {
+  _id: string;
+  title: string;
+  description: string;
+  code: string;
+  discountType: "percentage" | "fixed" | "free";
+  discountValue: number;
+  minPurchaseAmount?: number;
+  maxDiscountAmount?: number;
+  validFrom: string;
+  validUntil: string;
+  isActive: boolean;
+  isValid?: boolean;
+  applicableServices?: string[];
+  applicableCategories?: string[];
+}
+
 const steps = [
   { id: 1, title: 'Select Service', description: 'Choose your preferred service' },
   { id: 2, title: 'Select Location', description: 'Home or Salon service' },
@@ -112,6 +129,11 @@ export default function BookPage() {
 
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
   const [selectedStylist, setSelectedStylist] = useState<Stylist | null>(null);
+  
+  // Offer state
+  const [appliedOffer, setAppliedOffer] = useState<Offer | null>(null);
+  const [offerError, setOfferError] = useState<string>('');
+  const [loadingOffer, setLoadingOffer] = useState(false);
   
   // Search and filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -159,8 +181,14 @@ export default function BookPage() {
       
       // Store offer code if provided
       if (offerCode) {
-        // Could store in localStorage or state for later use during booking
         localStorage.setItem('selectedOfferCode', offerCode);
+        fetchOfferByCode(offerCode);
+      } else {
+        // Check if offer code exists in localStorage
+        const storedOfferCode = localStorage.getItem('selectedOfferCode');
+        if (storedOfferCode) {
+          fetchOfferByCode(storedOfferCode);
+        }
       }
     } else {
       // Only redirect if auth is not loading and user is not authenticated
@@ -203,6 +231,18 @@ export default function BookPage() {
       }
     }
   }, [services, searchParams, currentStep]);
+
+  // Re-validate offer when services change
+  useEffect(() => {
+    if (appliedOffer && selectedServices.length > 0) {
+      const validation = canApplyOffer();
+      if (!validation.canApply && validation.reason) {
+        setOfferError(validation.reason);
+      } else {
+        setOfferError('');
+      }
+    }
+  }, [selectedServices, appliedOffer]);
 
   // Reset pagination when search or filters change
   useEffect(() => {
@@ -440,6 +480,97 @@ export default function BookPage() {
     return true;
   };
 
+  // Fetch offer by code
+  const fetchOfferByCode = async (code: string) => {
+    try {
+      setLoadingOffer(true);
+      setOfferError('');
+      const response = await offerAPI.getByCode(code);
+      if (response.success && response.data) {
+        setAppliedOffer(response.data);
+      } else {
+        setOfferError('Offer not found or invalid');
+        setAppliedOffer(null);
+        localStorage.removeItem('selectedOfferCode');
+      }
+    } catch (err: any) {
+      setOfferError(err.message || 'Failed to load offer');
+      setAppliedOffer(null);
+      localStorage.removeItem('selectedOfferCode');
+    } finally {
+      setLoadingOffer(false);
+    }
+  };
+
+  // Validate if offer can be applied
+  const canApplyOffer = (): { canApply: boolean; reason?: string } => {
+    if (!appliedOffer) {
+      return { canApply: false };
+    }
+
+    if (!appliedOffer.isValid) {
+      return { canApply: false, reason: 'Offer is not currently valid' };
+    }
+
+    const totalAfterServiceDiscounts = calculateTotalPrice();
+    const originalTotal = calculateOriginalTotal();
+
+    // Check minimum purchase amount
+    if (appliedOffer.minPurchaseAmount && originalTotal < appliedOffer.minPurchaseAmount) {
+      return { 
+        canApply: false, 
+        reason: `Minimum purchase amount of ₹${appliedOffer.minPurchaseAmount} required` 
+      };
+    }
+
+    // Check applicable services
+    if (appliedOffer.applicableServices && appliedOffer.applicableServices.length > 0) {
+      const selectedServiceIds = selectedServices.map(s => s._id);
+      const isApplicable = selectedServiceIds.some(id => 
+        appliedOffer.applicableServices!.includes(id)
+      );
+      if (!isApplicable) {
+        return { canApply: false, reason: 'Offer not applicable to selected services' };
+      }
+    }
+
+    // Check applicable categories
+    if (appliedOffer.applicableCategories && appliedOffer.applicableCategories.length > 0) {
+      const selectedCategories = selectedServices.map(s => s.category);
+      const isApplicable = selectedCategories.some(cat => 
+        appliedOffer.applicableCategories!.includes(cat)
+      );
+      if (!isApplicable) {
+        return { canApply: false, reason: 'Offer not applicable to selected service categories' };
+      }
+    }
+
+    return { canApply: true };
+  };
+
+  // Calculate offer discount
+  const calculateOfferDiscount = (): number => {
+    const offerValidation = canApplyOffer();
+    if (!offerValidation.canApply || !appliedOffer) {
+      return 0;
+    }
+
+    const totalAfterServiceDiscounts = calculateTotalPrice();
+
+    if (appliedOffer.discountType === "percentage") {
+      let discount = (totalAfterServiceDiscounts * appliedOffer.discountValue) / 100;
+      if (appliedOffer.maxDiscountAmount && discount > appliedOffer.maxDiscountAmount) {
+        discount = appliedOffer.maxDiscountAmount;
+      }
+      return discount;
+    } else if (appliedOffer.discountType === "fixed") {
+      return Math.min(appliedOffer.discountValue, totalAfterServiceDiscounts);
+    } else {
+      // free
+      return totalAfterServiceDiscounts;
+    }
+  };
+
   const calculateTotalPrice = () => {
     return selectedServices.reduce((total, service) => {
       return total + calculateDiscountedPrice(service);
@@ -450,8 +581,14 @@ export default function BookPage() {
     return selectedServices.reduce((total, service) => total + service.price, 0);
   };
 
-  const calculateTotalDiscount = () => {
+  const calculateServiceDiscount = () => {
     return calculateOriginalTotal() - calculateTotalPrice();
+  };
+
+  const calculateFinalPrice = () => {
+    const totalAfterServiceDiscounts = calculateTotalPrice();
+    const offerDiscount = calculateOfferDiscount();
+    return Math.max(0, totalAfterServiceDiscounts - offerDiscount);
   };
 
   // Get unique categories from services
@@ -674,6 +811,13 @@ export default function BookPage() {
       setSubmitting(true);
       setError('');
       
+      // Get offer code if offer is valid
+      let offerCodeToApply: string | undefined = undefined;
+      const offerValidation = canApplyOffer();
+      if (offerValidation.canApply && appliedOffer) {
+        offerCodeToApply = appliedOffer.code;
+      }
+      
       // For multiple services, we'll create separate appointments
       const appointmentPromises = bookingData.serviceIds.map(serviceId => {
         const appointmentData = {
@@ -684,7 +828,8 @@ export default function BookPage() {
           location: bookingData.location,
           notes: bookingData.notes,
           specialInstructions: bookingData.specialInstructions,
-          address: bookingData.location === 'home' ? bookingData.address : undefined
+          address: bookingData.location === 'home' ? bookingData.address : undefined,
+          offerCode: offerCodeToApply
         };
         return appointmentAPI.create(appointmentData);
       });
@@ -712,8 +857,10 @@ export default function BookPage() {
         });
         setSelectedServices([]);
         setSelectedStylist(null);
+        setAppliedOffer(null);
         setCurrentStep(1);
         setSuccess('');
+        localStorage.removeItem('selectedOfferCode');
       }, 3000);
       
     } catch (error: any) {
@@ -926,9 +1073,9 @@ export default function BookPage() {
                       <h3 className="text-lg font-semibold text-gold">
                         Selected Services ({selectedServices.length})
                       </h3>
-                      {calculateTotalDiscount() > 0 && (
+                      {(calculateServiceDiscount() > 0 || calculateOfferDiscount() > 0) && (
                         <span className="text-sm text-red-600 font-medium">
-                          🎉 Saving ₹{calculateTotalDiscount()}!
+                          🎉 Saving ₹{calculateServiceDiscount() + calculateOfferDiscount()}!
                         </span>
                       )}
                     </div>
@@ -1845,6 +1992,41 @@ export default function BookPage() {
                   <h2 className="text-2xl font-semibold text-gray-900">Confirm Booking</h2>
                 </div>
                 
+                {/* Applied Offer Display */}
+                {appliedOffer && (
+                  <div className={`mb-6 p-4 rounded-lg border ${
+                    canApplyOffer().canApply 
+                      ? 'bg-green-50 border-green-200' 
+                      : 'bg-red-50 border-red-200'
+                  }`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Gift className={`w-5 h-5 ${
+                            canApplyOffer().canApply ? 'text-green-600' : 'text-red-600'
+                          }`} />
+                          <h4 className="font-semibold text-gray-900">Offer Applied: {appliedOffer.code}</h4>
+                        </div>
+                        <p className="text-sm text-gray-700 mb-1">{appliedOffer.title}</p>
+                        {canApplyOffer().canApply ? (
+                          <p className="text-xs text-green-700">
+                            {appliedOffer.discountType === 'percentage' 
+                              ? `${appliedOffer.discountValue}% OFF`
+                              : appliedOffer.discountType === 'fixed'
+                              ? `₹${appliedOffer.discountValue} OFF`
+                              : 'FREE'}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-red-700">{canApplyOffer().reason}</p>
+                        )}
+                      </div>
+                      {canApplyOffer().canApply && (
+                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Booking Summary */}
                 <div className="bg-gray-50 rounded-lg p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Booking Summary</h3>
@@ -1907,26 +2089,38 @@ export default function BookPage() {
                         <span className="font-semibold">{bookingData.specialInstructions}</span>
                       </div>
                     )}
-                    {calculateTotalDiscount() > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Original Total:</span>
-                        <span className="text-gray-400 line-through">
-                          ₹{calculateOriginalTotal()}
-                        </span>
-                      </div>
-                    )}
-                    {calculateTotalDiscount() > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Discount:</span>
-                        <span className="text-red-600 font-semibold">
-                          -₹{calculateTotalDiscount()}
-                        </span>
-                      </div>
+                    
+                    {/* Price Breakdown */}
+                    {(calculateServiceDiscount() > 0 || calculateOfferDiscount() > 0) && (
+                      <>
+                        <div className="flex justify-between pt-2 border-t border-gray-200">
+                          <span className="text-gray-600">Subtotal:</span>
+                          <span className="text-gray-400 line-through">
+                            ₹{calculateOriginalTotal()}
+                          </span>
+                        </div>
+                        {calculateServiceDiscount() > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Service Discount:</span>
+                            <span className="text-red-600 font-semibold">
+                              -₹{calculateServiceDiscount()}
+                            </span>
+                          </div>
+                        )}
+                        {calculateOfferDiscount() > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Offer Discount ({appliedOffer?.code}):</span>
+                            <span className="text-red-600 font-semibold">
+                              -₹{calculateOfferDiscount()}
+                            </span>
+                          </div>
+                        )}
+                      </>
                     )}
                     <div className="flex justify-between border-t border-gray-200 pt-3">
                       <span className="text-gray-900 font-semibold">Total:</span>
                       <span className="text-xl font-bold text-gold">
-                        ₹{calculateTotalPrice()}
+                        ₹{calculateFinalPrice()}
                       </span>
                     </div>
                   </div>
