@@ -422,3 +422,14 @@ export const offerAPI = {
   getByCode: (code: string) =>
     apiRequest(`/offers/code/${code}`),
 };
+
+// Hero APIs
+export const heroAPI = {
+  getAll: (params?: any) => {
+    const queryString = buildQueryString(params);
+    return apiRequest(`/hero${queryString}`);
+  },
+
+  getById: (id: string) =>
+    apiRequest(`/hero/${id}`),
+};
